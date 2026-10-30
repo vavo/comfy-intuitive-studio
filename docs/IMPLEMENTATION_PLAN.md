@@ -135,3 +135,11 @@ The extension exposes ten verified model IDs across four workflow types; the oth
 six workflow types remain present and server-blocked pending compatible endpoints.
 Runpod's live WAN 2.2 worker rejected a three-second request; the local policy now
 restricts durations to documented tiers. Vendor source remains unchanged.
+
+## Completion checkpoint
+
+All ten prototype acceptance criteria above have been exercised. See QA.md for
+live cost metadata, screenshots, boundary tests and the explicit untested cases.
+The runtime and intact budget ledger now live under this project's ignored
+`.runtime/`, not /tmp or either Forma repository. The implementation goal can close
+once this checkpoint is committed and pushed; no competition entry is implied.

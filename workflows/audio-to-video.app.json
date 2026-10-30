@@ -1,14 +1,14 @@
 {
   "id": "b6927097-687b-5540-8b58-94edfe67e069",
   "revision": 0,
-  "last_node_id": 2,
+  "last_node_id": 6056052,
   "last_link_id": 1,
   "version": 0.4,
   "config": {},
   "groups": [],
   "nodes": [
     {
-      "id": 1,
+      "id": 6056051,
       "type": "StudioVideo",
       "pos": [
         80,
@@ -44,7 +44,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": 6056052,
       "type": "SaveVideo",
       "pos": [
         590,
@@ -78,9 +78,9 @@
   "links": [
     [
       1,
-      1,
+      6056051,
       0,
-      2,
+      6056052,
       0,
       "VIDEO"
     ]
@@ -90,12 +90,12 @@
     "linearData": {
       "inputs": [
         [
-          1,
+          6056051,
           "studio_panel"
         ]
       ],
       "outputs": [
-        2
+        6056052
       ]
     },
     "ds": {

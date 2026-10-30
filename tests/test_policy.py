@@ -23,6 +23,17 @@ def request(**changes):
 
 
 class PolicyTests(unittest.TestCase):
+    def test_native_widget_hosts_have_distinct_workflow_ids(self):
+        ids = []
+        for path in (root / "workflows").glob("*.app.json"):
+            graph = json.loads(path.read_text())
+            source, output = graph["nodes"]
+            ids.append(source["id"])
+            self.assertEqual(graph["extra"]["linearData"]["inputs"][0][0], source["id"])
+            self.assertEqual(graph["links"][0][1], source["id"])
+            self.assertEqual(graph["links"][0][3], output["id"])
+        self.assertEqual(len(ids), len(set(ids)))
+
     def test_all_workflow_types_preserved(self):
         self.assertEqual(len(policy.catalog()["workflows"]), 10)
 

@@ -8,18 +8,22 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def graph(node_type, request, name, kind="image"):
     save_type = "SaveImage" if kind == "image" else "SaveVideo"
-    return {"id": str(uuid.uuid5(uuid.NAMESPACE_URL, "intuitive-studio:" + name)), "revision": 0, "last_node_id": 2,
+    # App Mode keys DOM widgets by node/widget identity across workflow tabs.
+    # Distinct IDs force the native widget host to remount for each studio app.
+    node_id = 10 * (uuid.uuid5(uuid.NAMESPACE_URL, name).int % 1000000) + 1
+    output_id = node_id + 1
+    return {"id": str(uuid.uuid5(uuid.NAMESPACE_URL, "intuitive-studio:" + name)), "revision": 0, "last_node_id": output_id,
         "last_link_id": 1, "version": 0.4, "config": {}, "groups": [],
         "nodes": [
-            {"id": 1, "type": node_type, "pos": [80,80], "size": [420,600], "flags": {}, "order":0,
+            {"id": node_id, "type": node_type, "pos": [80,80], "size": [420,600], "flags": {}, "order":0,
              "mode":0, "inputs": [], "outputs": [{"name":kind.upper(),"type":kind.upper(),"links":[1]}] + ([] if node_type == "StudioProbe" else [{"name":"forma_reference", "type":"STRING", "links":[]}]),
              "properties": {"Node name for S&R": node_type}, "widgets_values":[json.dumps(request)]},
-            {"id": 2, "type": save_type, "pos": [590,80], "size": [420,400], "flags": {}, "order":1,
+            {"id": output_id, "type": save_type, "pos": [590,80], "size": [420,400], "flags": {}, "order":1,
              "mode":0, "inputs": [{"name":"images" if kind=="image" else "video", "type":kind.upper(), "link":1}],
              "outputs": [], "properties": {"Node name for S&R":save_type},
              "widgets_values": ["IntuitiveStudio/"+name] if kind=="image" else ["IntuitiveStudio/"+name,"auto","auto"]}],
-        "links":[[1,1,0,2,0,kind.upper()]],
-        "extra":{"linearMode":True,"linearData":{"inputs":[[1,"studio_panel"]],"outputs":[2]},
+        "links":[[1,node_id,0,output_id,0,kind.upper()]],
+        "extra":{"linearMode":True,"linearData":{"inputs":[[node_id,"studio_panel"]],"outputs":[output_id]},
                  "ds":{"scale":.8,"offset":[0,0]}}}
 
 

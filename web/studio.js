@@ -55,7 +55,7 @@ app.registerExtension({
         input.value = state().title || "App Mode capability proof";
         for (const button of cards.children) button.setAttribute("aria-pressed", String(button.dataset.look === (state().look || "studio")));
       }
-      input.onchange = () => update({title: input.value});
+      input.oninput = () => update({title: input.value});
       for (const look of ["studio", "sunset", "night"]) {
         const button = element("button", null, {type: "button", "aria-label": `Choose ${look} look`});
         button.dataset.look = look;
@@ -64,6 +64,7 @@ app.registerExtension({
         cards.append(button);
       }
       const widget = node.addDOMWidget("studio_panel", "studio_panel", root, {serialize: false, hideOnZoom: false});
+      widget.label = "Capability test";
       widget.computeSize = () => [360, 365];
       const configure = node.onConfigure;
       node.onConfigure = function () { configure?.apply(this, arguments); render(); };

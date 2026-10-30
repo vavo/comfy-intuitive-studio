@@ -1,0 +1,53 @@
+{
+  "checked": "2026-10-30",
+  "ceilingCents": 300,
+  "reservedCents": 80,
+  "reportedCompletedCostUSD": 0.52,
+  "note": "Forma job metadata costs, not an independent wallet audit. Failed/uncertain jobs remain reserved in local ledger.",
+  "jobs": [
+    {
+      "id": "edf70ff8-8776-485a-bd35-05d00dda6cae",
+      "modelId": "black-forest-labs-flux-1-schnell",
+      "workflow": "text-to-image",
+      "provider": "runpod",
+      "providerEndpoint": "black-forest-labs-flux-1-schnell",
+      "status": "COMPLETED",
+      "cost": 0.01,
+      "error": null,
+      "reservedCents": 1
+    },
+    {
+      "id": "c445c184-2950-4659-ab55-5febed4d7d1f",
+      "modelId": "qwen-image-edit-2511",
+      "workflow": "image-to-image",
+      "provider": "runpod",
+      "providerEndpoint": "qwen-image-edit-2511",
+      "status": "COMPLETED",
+      "cost": 0.04,
+      "error": null,
+      "reservedCents": 4
+    },
+    {
+      "id": "4288dc4f-2bd8-4016-92e4-22d11f8f4573",
+      "modelId": "wan-2-2-i2v-720",
+      "workflow": "image-to-video",
+      "provider": "runpod",
+      "providerEndpoint": "wan-2-2-i2v-720",
+      "status": "FAILED",
+      "cost": null,
+      "error": "The generation provider rejected the clip duration. Choose one of the model's supported durations.",
+      "reservedCents": 28
+    },
+    {
+      "id": "aa439b07-a19b-44d9-ba1f-e843c8afdca0",
+      "modelId": "wan-2-2-i2v-720",
+      "workflow": "image-to-video",
+      "provider": "runpod",
+      "providerEndpoint": "wan-2-2-i2v-720",
+      "status": "COMPLETED",
+      "cost": 0.47,
+      "error": null,
+      "reservedCents": 47
+    }
+  ]
+}

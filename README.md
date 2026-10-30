@@ -75,3 +75,8 @@ Read the [implementation plan](docs/IMPLEMENTATION_PLAN.md),
 [endpoint research](docs/ENDPOINTS.md) and [verification record](docs/QA.md).
 Code is MIT-licensed; model weights and external runtimes have separate licenses.
 The Forma client/catalog snapshot is attributed in [NOTICE.md](NOTICE.md).
+
+The preconfigured machine runtime can be started with `sh scripts/launch.sh` alone;
+its ignored local configuration supplies the existing Python and Forma-key paths.
+For no-cost runtime acceptance checks, run `python3 scripts/verify_runtime.py`.
+See QA for the distinction between tested environment reuse and a fresh install.

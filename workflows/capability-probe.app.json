@@ -1,14 +1,14 @@
 {
   "id": "040ad94c-61c2-54c9-a4f7-49b689af7aa1",
   "revision": 0,
-  "last_node_id": 2,
+  "last_node_id": 5365252,
   "last_link_id": 1,
   "version": 0.4,
   "config": {},
   "groups": [],
   "nodes": [
     {
-      "id": 1,
+      "id": 5365251,
       "type": "StudioProbe",
       "pos": [
         80,
@@ -39,7 +39,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": 5365252,
       "type": "SaveImage",
       "pos": [
         590,
@@ -71,9 +71,9 @@
   "links": [
     [
       1,
-      1,
+      5365251,
       0,
-      2,
+      5365252,
       0,
       "IMAGE"
     ]
@@ -83,12 +83,12 @@
     "linearData": {
       "inputs": [
         [
-          1,
+          5365251,
           "studio_panel"
         ]
       ],
       "outputs": [
-        2
+        5365252
       ]
     },
     "ds": {

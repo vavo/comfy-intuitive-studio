@@ -23,6 +23,11 @@ async function post(path, body, contentType = "application/json") {
 
 app.registerExtension({
   name: "IntuitiveStudio.App",
+  setup() {
+    api.addEventListener("execution_error", ({detail}) => {
+      app.graph.getNodeById(detail.node_id)?.studioError?.(detail.exception_message);
+    });
+  },
   beforeRegisterNodeDef(nodeType, data) {
     if (!["StudioImage", "StudioVideo"].includes(data.name)) return;
     const created = nodeType.prototype.onNodeCreated;
@@ -33,6 +38,7 @@ app.registerExtension({
       const root = element("section", null, {class:"intuitive-studio", "aria-label":"Intuitive Studio"});
       let catalog, revision = 0;
       const status = element("p", "Loading the verified model catalog…", {class:"studio-status", role:"status", "aria-live":"polite"});
+      node.studioError = message => {status.textContent=String(message || "Generation failed. Check the native error details.");};
       function state() { try { return JSON.parse(raw.value); } catch { return {}; } }
       function update(patch) {
         raw.value = JSON.stringify({...state(), ...patch});
@@ -185,6 +191,7 @@ app.registerExtension({
       }
       root.append(status);
       const widget=node.addDOMWidget("studio_panel","studio_panel",root,{serialize:false,hideOnZoom:false});
+      widget.label="Studio";
       widget.computeSize=()=>[360,Math.max(400,root.scrollHeight)];
       const configure=node.onConfigure;
       node.onConfigure=function(){configure?.apply(this,arguments);render();};

@@ -49,3 +49,11 @@ Comfy's global navigation or pretend that the whole installation is a kiosk.
 
 The loader's fourth argument is the workflow filename/object, not an options map.
 This difference was found and fixed through a real result hand-off test.
+
+## Widget lifecycle finding
+
+The pinned App Mode list keys widgets by their node/widget identity. Reusing node
+IDs 1/2 across every app can reuse a mounted DOM host after a tab switch, leaving
+the next custom panel empty. Bundled workflows now have distinct stable node IDs.
+This fixes the reproduced tab-switch cycle without modifying ComfyUI. Request
+recovery uses the saved session/take, so changing graph IDs does not buy new jobs.

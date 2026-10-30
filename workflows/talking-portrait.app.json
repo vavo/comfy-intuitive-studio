@@ -1,0 +1,109 @@
+{
+  "id": "1a8f9cff-11e7-5a98-a0e2-1ae608946660",
+  "revision": 0,
+  "last_node_id": 2,
+  "last_link_id": 1,
+  "version": 0.4,
+  "config": {},
+  "groups": [],
+  "nodes": [
+    {
+      "id": 1,
+      "type": "StudioVideo",
+      "pos": [
+        80,
+        80
+      ],
+      "size": [
+        420,
+        600
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "forma_reference",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StudioVideo"
+      },
+      "widgets_values": [
+        "{\"workflow\": \"talking-portrait\", \"model\": \"infinitetalk\", \"values\": {\"size\": \"480p\", \"prompt\": \"\"}, \"cap\": 50, \"run\": 1, \"session\": \"c41e9dec-8a91-5121-bcde-3b8750963a2e\"}"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "SaveVideo",
+      "pos": [
+        590,
+        80
+      ],
+      "size": [
+        420,
+        400
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 1
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "IntuitiveStudio/talking-portrait",
+        "auto",
+        "auto"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "VIDEO"
+    ]
+  ],
+  "extra": {
+    "linearMode": true,
+    "linearData": {
+      "inputs": [
+        [
+          1,
+          "studio_panel"
+        ]
+      ],
+      "outputs": [
+        2
+      ]
+    },
+    "ds": {
+      "scale": 0.8,
+      "offset": [
+        0,
+        0
+      ]
+    }
+  }
+}

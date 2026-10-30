@@ -1,0 +1,233 @@
+{
+  "checked": "2026-10-30",
+  "route": "ComfyUI App Mode -> Forma API -> Runpod Public Endpoints",
+  "categoryEligibility": "unconfirmed",
+  "scope": "Base-weight availability verified, not an attestation of hosted worker internals. Runpod is a hackathon partner; sponsorship does not independently establish category approval.",
+  "models": [
+    {
+      "id": "black-forest-labs-flux-1-dev",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+      "license": "FLUX noncommercial",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/flux-dev"
+    },
+    {
+      "id": "black-forest-labs-flux-1-kontext-dev",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/black-forest-labs/FLUX.1-Kontext-dev",
+      "license": "FLUX noncommercial",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/flux-kontext-dev"
+    },
+    {
+      "id": "black-forest-labs-flux-1-schnell",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
+      "license": "Apache-2.0",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/flux-schnell"
+    },
+    {
+      "id": "infinitetalk",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/MeiGen-AI/InfiniteTalk",
+      "license": "Apache-2.0",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/infinitetalk"
+    },
+    {
+      "id": "kling-v2-6-std-motion-control",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "kling-video-o1-r2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "google-nano-banana-2-edit",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "nano-banana-pro-edit",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "p-image-edit",
+      "status": "pending",
+      "reason": "Provider optimization may use open bases, but exact served weights are not verified."
+    },
+    {
+      "id": "p-image-t2i",
+      "status": "pending",
+      "reason": "Provider optimization may use open bases, but exact served weights are not verified."
+    },
+    {
+      "id": "p-video",
+      "status": "pending",
+      "reason": "Provider optimization may use open bases, but exact served weights are not verified."
+    },
+    {
+      "id": "qwen-image-edit-2511-lora",
+      "status": "pending",
+      "reason": "Open base model; exact served adapters and optional LoRAs require provenance verification."
+    },
+    {
+      "id": "qwen-image-edit-2511",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
+      "license": "Apache-2.0",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/qwen-image-edit-2511"
+    },
+    {
+      "id": "qwen-image-edit",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/Qwen/Qwen-Image-Edit",
+      "license": "Apache-2.0",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/qwen-image-edit"
+    },
+    {
+      "id": "qwen-image-t2i-lora",
+      "status": "pending",
+      "reason": "Open base model; exact served adapters and optional LoRAs require provenance verification."
+    },
+    {
+      "id": "qwen-image-t2i",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/Qwen/Qwen-Image",
+      "license": "Apache-2.0",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/qwen-image"
+    },
+    {
+      "id": "seedance-v1-5-pro-i2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "seedream-v4-edit",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "seedream-v4-t2i",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "sora-2-pro-i2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "sora-2-i2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "vidu-q3-i2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "vidu-q3-t2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "wan-2-1-i2v-720",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/Wan-AI/Wan2.1-I2V-14B-720P",
+      "license": "Apache-2.0",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/wan-2-1-i2v"
+    },
+    {
+      "id": "wan-2-2-t2v-720-lora",
+      "status": "pending",
+      "reason": "Open base model; exact served adapters and optional LoRAs require provenance verification."
+    },
+    {
+      "id": "wan-2-2-i2v-720",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/Wan-AI/Wan2.2-I2V-A14B",
+      "license": "Apache-2.0",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/wan-2-2-i2v"
+    },
+    {
+      "id": "wan-2-5",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "wan-2-6-i2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "wan-2-6-t2i",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "wan-2-6-t2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "z-image-turbo",
+      "status": "enabled",
+      "reason": "Published base model weights; Forma forwards this catalog ID to Runpod.",
+      "weights": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+      "license": "Apache-2.0",
+      "endpointDocs": "https://docs.runpod.io/public-endpoints/models/z-image-turbo"
+    },
+    {
+      "id": "google-veo3-1-fast-i2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "minimax-hailuo-2-3-fast",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "minimax-hailuo-02-std",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "p-video-edit",
+      "status": "pending",
+      "reason": "Provider optimization may use open bases, but exact served weights are not verified."
+    },
+    {
+      "id": "fal-kling-v3-pro-i2v",
+      "status": "excluded",
+      "reason": "fal route is outside the required Runpod Public Endpoints path, regardless of model openness."
+    },
+    {
+      "id": "fal-flux-2-klein-9b",
+      "status": "excluded",
+      "reason": "fal route is outside the required Runpod Public Endpoints path, regardless of model openness."
+    },
+    {
+      "id": "seedance-2-5-i2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    },
+    {
+      "id": "seedance-2-5-t2v",
+      "status": "excluded",
+      "reason": "No verified exact open-weight release in this audit; not executable."
+    }
+  ]
+}

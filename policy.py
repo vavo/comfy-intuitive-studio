@@ -2,13 +2,23 @@
 import json
 import math
 from pathlib import Path
-from .vendor.catalog import MODELS, WORKFLOWS, model_fields, prepare_inputs, field_id
+from .vendor.catalog import MODELS, WORKFLOWS, model_fields as snapshot_fields, prepare_inputs, field_id
 from .vendor.client import FormaError
 
 MANIFEST = json.loads((Path(__file__).parent / "model-policy.json").read_text())
 ALLOWED = {entry["id"] for entry in MANIFEST["models"] if entry["status"] == "enabled"}
 ALL_WORKFLOWS = [mode for modes in WORKFLOWS.values() for mode in modes]
 BLOCKED_FIELDS = {"loras", "lora", "lora_url", "enable_prompt_optimization", "enable_prompt_expansion", "prompt_upsampling"}
+
+
+def model_fields(model, workflow):
+    fields = snapshot_fields(model, workflow)
+    if model["id"] == "wan-2-2-i2v-720":
+        for field in fields:
+            if field["name"] == "duration":
+                # Live worker rejected 3s; documented duration tiers, checked 2026-10-30.
+                field.update(choices=[5, 8, 10, 15], default=5)
+    return fields
 
 
 def catalog():
@@ -65,6 +75,8 @@ def validate(raw, expected_kind=None):
             converted[key] = {key: "Reference" if value.strip() else "None", "value": value}
         elif name in values:
             value = values[name]
+            if field.get("choices") and value not in field["choices"]:
+                raise FormaError(f"Choose a supported {field['label'].lower()}.")
             if field["type"] == "boolean" and type(value) is not bool:
                 raise FormaError("Boolean fields must be true or false.")
             if field["type"] == "integer" and type(value) is not int:

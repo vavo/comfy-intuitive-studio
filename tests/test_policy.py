@@ -5,6 +5,7 @@ import sys
 import tempfile
 import types
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
@@ -30,7 +31,7 @@ class PolicyTests(unittest.TestCase):
         self.assertEqual(options["inputs"]["width"], 512)
 
     def test_closed_model_rejected_even_via_raw_json(self):
-        with self.assertRaisesRegex(ValueError if False else policy.FormaError, "verified"):
+        with self.assertRaisesRegex(policy.FormaError, "verified"):
             policy.validate(request(model="seedream-v4-t2i"))
 
     def test_fal_model_rejected_despite_open_weights(self):
@@ -41,6 +42,10 @@ class PolicyTests(unittest.TestCase):
         for raw, kind in [(request(workflow="motion-transfer"), None), (request(), "video")]:
             with self.assertRaises(policy.FormaError):
                 policy.validate(raw, kind)
+
+    def test_unsupported_wan_duration_fails_before_submission(self):
+        with self.assertRaisesRegex(policy.FormaError, "duration"):
+            policy.validate(request(model="wan-2-2-i2v-720", workflow="image-to-video", values={"prompt":"camera movement", "image":"https://example.com/image.png", "duration":3}))
 
     def test_unreviewed_lora_and_prompt_enhancer_rejected(self):
         for field in ["loras", "enable_prompt_optimization"]:
@@ -68,6 +73,32 @@ class PolicyTests(unittest.TestCase):
             budget.reserve(path, "first", 10, 300)
             with self.assertRaises(policy.FormaError):
                 budget.reserve(path, "first", 20, 300)
+
+    def test_budget_blocks_network_submission_and_keeps_uncertain_charge(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "budget.db"
+            client = budget.BudgetClient.__new__(budget.BudgetClient)
+            client.quotes = {"quote": {"requestId": "one", "cents": 200}}
+            with patch.object(budget, "budget_path", return_value=path), patch.dict("os.environ", {"STUDIO_BUDGET_CENTS": "300"}):
+                with patch.object(budget.FormaClient, "request", side_effect=policy.FormaError("Connection lost")):
+                    with self.assertRaises(policy.FormaError):
+                        client.request("/jobs", {"quoteId": "quote"})
+                client.quotes["quote"] = {"requestId": "two", "cents": 101}
+                with patch.object(budget.FormaClient, "request") as network:
+                    with self.assertRaisesRegex(policy.FormaError, "budget"):
+                        client.request("/jobs", {"quoteId": "quote"})
+                    network.assert_not_called()
+            with sqlite3.connect(path) as db:
+                self.assertEqual(db.execute("SELECT cents,status FROM spend").fetchall(), [(200, "RESERVED")])
+
+    def test_recovering_existing_job_without_prior_local_purchase(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "budget.db"
+            client = budget.BudgetClient.__new__(budget.BudgetClient)
+            with patch.object(budget, "budget_path", return_value=path), patch.object(budget.FormaClient, "request", return_value={"job": {"id": "old", "status": "COMPLETED"}}):
+                self.assertEqual(client.request("/jobs/old")["job"]["status"], "COMPLETED")
+            with sqlite3.connect(path) as db:
+                self.assertEqual(db.execute("SELECT COUNT(*) FROM spend").fetchone()[0], 0)
 
 
 if __name__ == "__main__":

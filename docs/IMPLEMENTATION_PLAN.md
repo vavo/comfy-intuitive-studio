@@ -126,3 +126,12 @@ remain stable across timeout recovery; intentional new generations need a new ru
 - https://github.com/Comfy-Org/ComfyUI_frontend/tree/v1.57.6
 - https://github.com/Comfy-Org/ComfyUI
 - https://github.com/vavo/runpod-endpoints-comfy
+
+## Implementation decisions after live testing
+
+The provider path is strictly Forma API → Runpod Public Endpoints. Direct LTX,
+MiniMax, fal and pod inference do not satisfy the selected architecture.
+The extension exposes ten verified model IDs across four workflow types; the other
+six workflow types remain present and server-blocked pending compatible endpoints.
+Runpod's live WAN 2.2 worker rejected a three-second request; the local policy now
+restricts durations to documented tiers. Vendor source remains unchanged.

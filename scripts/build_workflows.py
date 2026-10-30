@@ -39,6 +39,6 @@ if __name__ == "__main__":
         values = {f["name"]: f["default"] for f in (selected or {}).get("fields", []) if "default" in f and not f.get("media") and f["name"] not in {"enable_safety_checker", "enable_prompt_optimization", "enable_prompt_expansion", "prompt_upsampling"}}
         values["prompt"] = "A small ceramic lighthouse on a wooden desk, soft daylight, detailed product photograph" if mode == "text-to-image" else ""
         if mode == "text-to-image": values.update(width=512, height=512)
-        if mode == "image-to-video": values.update(duration=3, size="1280*720")
+        if mode == "image-to-video": values.update(duration=5, size="1280*720")
         state = {"workflow":mode,"model":selected["id"] if selected else "", "values":values,"cap":10 if kind=="image" else 50,"run":1,"session":str(uuid.uuid5(uuid.NAMESPACE_URL,"studio-session:"+mode))}
         (ROOT/"workflows"/(mode+".app.json")).write_text(json.dumps(graph("Studio"+kind.title(),state,mode,kind),indent=2)+"\n")

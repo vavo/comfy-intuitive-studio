@@ -40,7 +40,7 @@
         "Node name for S&R": "StudioVideo"
       },
       "widgets_values": [
-        "{\"workflow\": \"image-to-video\", \"model\": \"wan-2-2-i2v-720\", \"values\": {\"size\": \"1280*720\", \"num_inference_steps\": 30, \"guidance\": 5.0, \"duration\": 3, \"flow_shift\": 5, \"seed\": -1, \"prompt\": \"\"}, \"cap\": 50, \"run\": 1, \"session\": \"93bdb66f-a935-5d05-982c-46232f3a1c42\"}"
+        "{\"workflow\": \"image-to-video\", \"model\": \"wan-2-2-i2v-720\", \"values\": {\"size\": \"1280*720\", \"num_inference_steps\": 30, \"guidance\": 5.0, \"duration\": 5, \"flow_shift\": 5, \"seed\": -1, \"prompt\": \"\"}, \"cap\": 50, \"run\": 1, \"session\": \"93bdb66f-a935-5d05-982c-46232f3a1c42\"}"
       ]
     },
     {

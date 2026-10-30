@@ -1,9 +1,10 @@
 """Durable conservative inference ceiling, including uncertain submissions."""
-import json
 import os
 import sqlite3
 from pathlib import Path
 from .vendor.client import FormaClient, FormaError
+
+SCHEMA = "CREATE TABLE IF NOT EXISTS spend (request_id TEXT PRIMARY KEY, cents INTEGER NOT NULL, job_id TEXT, status TEXT NOT NULL)"
 
 
 def budget_path():
@@ -17,7 +18,7 @@ def reserve(path, request_id, cents, ceiling):
     if type(cents) is not int or cents < 0:
         raise FormaError("Forma returned an invalid quote amount.")
     with sqlite3.connect(path, timeout=10) as db:
-        db.execute("CREATE TABLE IF NOT EXISTS spend (request_id TEXT PRIMARY KEY, cents INTEGER NOT NULL, job_id TEXT, status TEXT NOT NULL)")
+        db.execute(SCHEMA)
         db.execute("BEGIN IMMEDIATE")
         previous = db.execute("SELECT cents FROM spend WHERE request_id=?", (request_id,)).fetchone()
         if previous:
@@ -52,5 +53,10 @@ class BudgetClient(FormaClient):
                 db.execute("UPDATE spend SET job_id=?,status=? WHERE request_id=?", (result["job"]["id"], result["job"]["status"], quote["requestId"]))
         if path.startswith("/jobs/") and "job" in result:
             with sqlite3.connect(budget_path()) as db:
+                # Recovering an existing Forma job may precede any local purchase.
+                db.execute(SCHEMA)
                 db.execute("UPDATE spend SET status=? WHERE job_id=?", (result["job"]["status"], result["job"]["id"]))
+        job = result.get("job", {})
+        if job.get("status") == "FAILED" and isinstance(job.get("error"), str):
+            raise FormaError("Forma job failed: " + job["error"][:500] + " No automatic retry was purchased.")
         return result

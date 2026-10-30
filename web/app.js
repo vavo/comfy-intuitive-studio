@@ -13,7 +13,6 @@ const catalogPromise = api.fetchApi("/intuitive-studio/catalog").then(async r =>
   if (!r.ok) throw new Error("Studio catalog unavailable. Restart ComfyUI after installing the extension.");
   return r.json();
 });
-const defaultModel = {"text-to-image": "black-forest-labs-flux-1-schnell", "image-to-image": "qwen-image-edit-2511", "image-to-video": "wan-2-2-i2v-720", "talking-portrait": "infinitetalk"};
 
 async function post(path, body, contentType = "application/json") {
   const response = await api.fetchApi(`/intuitive-studio/${path}`, {method:"POST", headers:{"Content-Type":contentType,"X-Intuitive-Studio":"1"}, body});
@@ -60,7 +59,7 @@ app.registerExtension({
             graph.nodes[0].widgets_values[0] = JSON.stringify(next);
           }
           // Native workflow loading retains ComfyUI's graph, queue and App Mode.
-          await app.loadGraphData(graph, true, true, {workflowName:`${mode}.app.json`});
+          await app.loadGraphData(graph, true, true, `${mode}.app.json`);
         } catch (error) { status.textContent = error.message; }
       }
       function makeField(field, parent) {
@@ -85,7 +84,7 @@ app.registerExtension({
           input.value = String(value);
         }
         input.title = field.description || "";
-        input.onchange = () => {
+        input.oninput = () => {
           let value = input.value;
           if (field.type === "boolean") value = value === "true";
           else if (["integer","number","float"].includes(field.type) && value !== "") value = Number(value);
@@ -158,7 +157,7 @@ app.registerExtension({
         root.append(advanced);
         const capLabel=element("label","Maximum spend for this run (USD cents)");
         const cap=element("input",null,{type:"number",min:"0",max:"300",step:"1","aria-label":"Maximum spend in cents"});
-        cap.value=state().cap ?? 0; cap.onchange=()=>update({cap:Number(cap.value)}); capLabel.append(cap); root.append(capLabel);
+        cap.value=state().cap ?? 0; cap.oninput=()=>update({cap:Number(cap.value)}); capLabel.append(cap); root.append(capLabel);
         root.append(element("p",`Take ${state().run || 1}. Unchanged requests recover the same generation.`,{class:"studio-hint"}));
         const actions=element("div",null,{class:"studio-actions"});
         const price=element("button","Check price",{type:"button"});
@@ -197,10 +196,11 @@ app.registerExtension({
           const list=node.properties.studio_results ||= [];
           if(!list.some(r=>r.reference===result.reference))list.push(result);
           if(list.length>24)list.shift();
+          app.graph.change();
           render();status.textContent="Completed through Forma. Continue with this result below.";
         }
       };
-      catalogPromise.then(data=>{catalog=data;render();}).catch(error=>{status.textContent=error.message;});
+      catalogPromise.then(data=>{catalog=data;status.textContent="Ready. Check the price, then use ComfyUI’s Run button.";render();}).catch(error=>{status.textContent=error.message;});
       node.setSize([420,800]);
     };
   }

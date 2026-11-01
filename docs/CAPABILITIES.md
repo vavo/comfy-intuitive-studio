@@ -95,3 +95,21 @@ workflows on that server, never returned to the browser or placed in graph data.
 The browser clears the input on submission; connection responses use no-store.
 Changing accounts does not migrate existing asset references or reset the spend
 ledger. The server fallback credential file is never modified.
+
+### Workflow launcher in the empty preview
+
+Studio replaces the native App Mode tutorial with an icon grid when the native
+`linear-welcome` empty state is present. The four available workflow types switch
+through the existing stage-preserving handler in the same tab. All six unavailable
+types remain visible in an expandable section, with disabled buttons.
+
+This is a scoped extension DOM integration against the pinned frontend 1.57.6,
+not a supported ComfyUI empty-state slot. It uses `linearCenterPanel` and
+`data-testid="linear-welcome"`; recheck these selectors on frontend upgrades.
+It does not replace the media renderer and unmounts when the welcome element or
+Studio control panel disappears. Other apps retain the native welcome.
+
+Browser QA at 1280×720 verified Create → Edit → Animate → Create, unchanged tab
+count and restored prompt, unavailable buttons, and removal/recreation when
+switching between graph and App Mode. No browser errors. No new inference was
+purchased; a new-result transition was not exercised in this pass.

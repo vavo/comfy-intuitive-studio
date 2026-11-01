@@ -3,6 +3,7 @@ import { api } from "../../scripts/api.js";
 import { element } from "./studio.js";
 import { sizeControls } from "./size-controls.js";
 import { connectionPanel } from "./connection.js";
+import { registerLauncher } from "./launcher.js";
 
 const labels = {
   "text-to-image": "Create an image", "image-to-image": "Edit an image",
@@ -87,6 +88,7 @@ app.registerExtension({
         status.textContent = "Forma connection changed. Check the price before running.";
       });
       let catalog, revision = 0, switching = false;
+      const removeLauncher = registerLauncher(root, () => catalog && ({catalog, labels, mode:state().workflow, switchWorkflow}));
       let previewMotion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const previewObserver = new IntersectionObserver(entries => {
         for (const entry of entries) {
@@ -97,7 +99,7 @@ app.registerExtension({
       const removed = node.onRemoved;
       node.onRemoved = function () {
         for (const video of root.querySelectorAll(".studio-cards video")) video.pause();
-        connection.dispose();previewObserver.disconnect();removed?.apply(this, arguments);
+        removeLauncher();connection.dispose();previewObserver.disconnect();removed?.apply(this, arguments);
       };
       const status = element("p", "Loading the verified model catalog…", {class:"studio-status", role:"status", "aria-live":"polite"});
       node.studioError = message => {status.textContent=String(message || "Generation failed. Check the native error details.");};

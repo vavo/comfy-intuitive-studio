@@ -66,3 +66,9 @@ recovery uses the saved session/take, so changing graph IDs does not buy new job
 - WAN 2.1 duration stops are 5/10/15 seconds, WAN 2.2 stops are 5/8/10/15. These are documented pricing tiers; other lengths are rejected before submission. Sources: https://docs.runpod.io/public-endpoints/models/wan-2-1-i2v and https://docs.runpod.io/public-endpoints/models/wan-2-2-i2v.
 - Size presets on free-form endpoints conform to their documented width*height input format. The hosted worker may derive the final aspect ratio from the input image. Every size has not been purchased for live inference validation.
 - Workflow selection reuses the active native workflow object. Per-stage graph state and output references are saved under `extra.studio_stages`, without recursive copies. Existing unrelated tabs stay intact. The native duplicate panel title is hidden only when a Studio app is present.
+
+### Camera modifier previews
+
+Gentle push and Slow orbit use silent looping H.264 clips of the same vase. Gentle push is a six-second deterministic zoom illustration from the source photograph. Slow orbit uses a Forma/WAN 2.2 generation with actual perspective change, trimmed and reversed for a repeating loop. Locked shot keeps the source photograph stationary. These illustrate the prompt modifiers; they are not a guarantee of a particular model's camera control.
+
+Previews play only while visible and stop when the form is replaced. Play/Pause previews affects both clips without changing the selected modifier. Reduced-motion users start with still posters and can opt into playback.

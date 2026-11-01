@@ -80,6 +80,18 @@ app.registerExtension({
       const raw = node.widgets.find(w => w.name === "request_json");
       const root = element("section", null, {class:"intuitive-studio", "aria-label":"Intuitive Studio"});
       let catalog, revision = 0, switching = false;
+      let previewMotion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const previewObserver = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && previewMotion) entry.target.play().catch(() => {});
+          else entry.target.pause();
+        }
+      });
+      const removed = node.onRemoved;
+      node.onRemoved = function () {
+        for (const video of root.querySelectorAll(".studio-cards video")) video.pause();
+        previewObserver.disconnect();removed?.apply(this, arguments);
+      };
       const status = element("p", "Loading the verified model catalog…", {class:"studio-status", role:"status", "aria-live":"polite"});
       node.studioError = message => {status.textContent=String(message || "Generation failed. Check the native error details.");};
       function state() { try { return JSON.parse(raw.value); } catch { return {}; } }
@@ -203,6 +215,7 @@ app.registerExtension({
       }
       function render() {
         if (!catalog) return;
+        for (const video of root.querySelectorAll(".studio-cards video")) {video.pause();previewObserver.unobserve(video);}
         root.replaceChildren();
         root.append(element("p","INTUITIVE STUDIO · OPEN WEIGHTS",{class:"studio-eyebrow"}),
           element("h2",labels[state().workflow] || "Make something."),
@@ -232,11 +245,30 @@ app.registerExtension({
         for (const [look,title,suffix] of presets) {
           const button=element("button",null,{type:"button","aria-pressed":String(state().look===look),"aria-label":title});
           const photo = m.kind === "image" ? look : {studio:"push",sunset:"orbit",night:"locked"}[look];
-          button.append(element("img", null, {src:new URL(`./assets/${photo}.png`,import.meta.url).href,alt:"",loading:"lazy"}),element("span",title));
+          if (m.kind === "video" && photo !== "locked") {
+            const video = element("video", null, {src:new URL(`./assets/${photo}.mp4`,import.meta.url).href,
+              poster:new URL("./assets/studio.png",import.meta.url).href,preload:"metadata","aria-hidden":"true"});
+            video.muted = true; video.loop = true; video.playsInline = true;
+            button.append(video);
+            previewObserver.observe(video);
+          } else button.append(element("img", null, {src:new URL(`./assets/${m.kind === "video" ? "studio" : photo}.png`,import.meta.url).href,alt:"",loading:"lazy"}));
+          button.append(element("span",title));
           button.onclick=()=>{update({look,values:{...state().values,prompt:((state().values?.prompt||"").replace(/\n\[Studio recipe\][\s\S]*$/,"")+"\n[Studio recipe] "+suffix).trim()}});render();};
           cards.append(button);
         }
         root.append(cards);
+        if (m.kind === "video") {
+          const playback = element("button", previewMotion ? "Pause previews" : "Play previews", {type:"button",class:"studio-preview-toggle"});
+          playback.onclick = () => {
+            previewMotion = !previewMotion;
+            playback.textContent = previewMotion ? "Pause previews" : "Play previews";
+            for (const video of cards.querySelectorAll("video")) {
+              if (previewMotion) video.play().catch(() => {});
+              else video.pause();
+            }
+          };
+          root.append(playback);
+        }
         const advanced=element("details"); advanced.append(element("summary","Advanced model settings"));
         const modelFields = fields(m);
         if (modelFields.some(f => f.name === "width") && modelFields.some(f => f.name === "height")) {

@@ -34,5 +34,21 @@
     "jobId": "e7100987-17a8-4312-9543-ff54e5c2d9f4",
     "prompt": "Photorealistic editorial photograph of a single matte ivory ceramic sculptural vase with one olive branch on a pale travertine plinth, curved dark charcoal studio backdrop. Restrained sage green, warm stone and charcoal palette, realistic ceramic texture, fine film grain, premium still life photography, no text, no graphics, no logos. Wide symmetrical front camera view, entire vase and plinth centered, sharp stable composition, soft neutral studio lighting.",
     "model": "z-image-turbo"
+  },
+  {
+    "name": "push-loop",
+    "file": "push.mp4",
+    "sourceAsset": "asset:cb6f0bdd-cb42-436e-b684-559b8b9a39f4",
+    "method": "FFmpeg cosine zoom 1.0 to 1.2 and back; 6 seconds, 480x360, 24 fps, silent H.264"
+  },
+  {
+    "name": "orbit-loop",
+    "file": "orbit.mp4",
+    "model": "wan-2-2-i2v-720",
+    "jobId": "f3291c78-fc65-47d6-9545-21c48e792c88",
+    "sourceAsset": "asset:cb6f0bdd-cb42-436e-b684-559b8b9a39f4",
+    "prompt": "A cinematic camera demonstration. The ceramic vase, olive branch and rectangular stone plinth remain completely stationary. The camera trucks in a smooth clockwise arc around the vase from a frontal view to a clear 45-degree side view, maintaining constant distance and height. Strong visible parallax: the near corner of the rectangular plinth moves across the frame and the curved background shifts behind the vase. No zoom. No rotating object. No morphing. One continuous slow orbit camera shot. Preserve the realistic studio lighting and original materials.",
+    "method": "First 4 seconds followed by reverse; 8 seconds, 480x360, 24 fps, silent H.264",
+    "reservedCents": 47
   }
 ]

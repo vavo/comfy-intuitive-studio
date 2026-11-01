@@ -34,6 +34,25 @@ class PolicyTests(unittest.TestCase):
             self.assertEqual(graph["links"][0][3], output["id"])
         self.assertEqual(len(ids), len(set(ids)))
 
+    def test_size_presets_are_enforced_before_network(self):
+        for model in policy.catalog()["models"]:
+            size = next((f for f in model["fields"] if f["name"] == "size"), None)
+            if not size:
+                continue
+            self.assertTrue(size.get("choices"), model["id"])
+            with self.assertRaisesRegex(policy.FormaError, "supported output size"):
+                policy.validate(request(model=model["id"], workflow=model["workflows"][0],
+                                        values={"prompt": "A vase", "size": "123*999"}))
+
+    def test_wan_duration_choices_are_model_specific(self):
+        for model_id, durations in [("wan-2-1-i2v-720", [5, 10, 15]),
+                                    ("wan-2-2-i2v-720", [5, 8, 10, 15])]:
+            fields = policy.model_fields(policy.MODELS[model_id], "image-to-video")
+            self.assertEqual(next(f["choices"] for f in fields if f["name"] == "duration"), durations)
+            with self.assertRaisesRegex(policy.FormaError, "supported duration"):
+                policy.validate(request(model=model_id, workflow="image-to-video",
+                                        values={"prompt": "A vase", "duration": 3}))
+
     def test_all_workflow_types_preserved(self):
         self.assertEqual(len(policy.catalog()["workflows"]), 10)
 

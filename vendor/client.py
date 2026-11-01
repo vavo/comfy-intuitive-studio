@@ -189,7 +189,7 @@ class FormaClient:
                 response = self.opener.open(Request(location, headers={"User-Agent": USER_AGENT}), timeout=120)
             with response:
                 mime = response.headers.get_content_type()
-                extension = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp", "video/mp4": ".mp4", "video/webm": ".webm"}.get(mime)
+                extension = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp", "video/mp4": ".mp4", "video/webm": ".webm", "audio/wav": ".wav", "audio/x-wav": ".wav", "audio/mpeg": ".mp3"}.get(mime)
                 if not extension or not mime.startswith(kind + "/"):
                     raise FormaError("Forma returned an unsupported media format.")
                 path = Path(directory) / f"forma-{job_id}-{uuid.uuid4().hex}{extension}"

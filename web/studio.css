@@ -18,3 +18,13 @@
 .intuitive-studio .studio-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
 .intuitive-studio details { margin:15px 0; }
 .intuitive-studio summary { cursor:pointer; color:#c3dfc3; }
+
+.intuitive-studio .studio-cards img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:6px; margin-bottom:6px; }
+.intuitive-studio .studio-references { display:flex; flex-wrap:wrap; gap:8px; }
+.intuitive-studio .studio-reference { display:block; width:100%; max-height:160px; object-fit:contain; background:#111719; border-radius:8px; }
+.intuitive-studio .studio-reference:is(img,video) { width:auto; max-width:100%; }
+.intuitive-studio input[type=range] { accent-color:#c3dfc3; padding:0; height:24px; cursor:pointer; }
+.intuitive-studio output { float:right; color:#c3dfc3; }
+.intuitive-studio .studio-duration-ticks { display:flex; justify-content:space-between; font-size:10px; color:#a7b4ab; margin-top:5px; }
+/* Keep native workflow chrome everywhere except the Studio app panel. */
+#linear-right-panel:has(.intuitive-studio[aria-label="Intuitive Studio"]) > div > section.h-12 { display:none; }

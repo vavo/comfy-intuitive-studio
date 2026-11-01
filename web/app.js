@@ -1,6 +1,6 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
-import { element, graphic } from "./studio.js";
+import { element } from "./studio.js";
 
 const labels = {
   "text-to-image": "Create an image", "image-to-image": "Edit an image",
@@ -13,6 +13,49 @@ const catalogPromise = api.fetchApi("/intuitive-studio/catalog").then(async r =>
   if (!r.ok) throw new Error("Studio catalog unavailable. Restart ComfyUI after installing the extension.");
   return r.json();
 });
+
+const previewCache = new Map();
+function rememberPreview(reference, url) {
+  if (previewCache.has(reference)) URL.revokeObjectURL(previewCache.get(reference));
+  previewCache.set(reference, url);
+  if (previewCache.size > 24) {
+    const oldest = previewCache.keys().next().value;
+    URL.revokeObjectURL(previewCache.get(oldest));
+    previewCache.delete(oldest);
+  }
+}
+async function assetPreview(reference, kind, target) {
+  if (!reference) return;
+  const media = element(kind === "image" ? "img" : kind, null, {class:"studio-reference", "aria-label":"Reference preview"});
+  if (kind === "image") media.alt = "Starting asset";
+  else { media.controls = true; media.preload = "metadata"; }
+  const message = element("span", "Loading preview…", {class:"studio-hint"});
+  target.append(message);
+  try {
+    let url = previewCache.get(reference);
+    if (!url && reference.startsWith("asset:")) {
+      const response = await api.fetchApi("/intuitive-studio/preview", {method:"POST", headers:{"Content-Type":"application/json","X-Intuitive-Studio":"1"}, body:JSON.stringify({reference,kind})});
+      if (!response.ok) throw new Error();
+      url = URL.createObjectURL(await response.blob());
+      rememberPreview(reference, url);
+    }
+    if (!url) {
+      const parsed = new URL(reference);
+      if (parsed.protocol !== "https:") throw new Error();
+      url = parsed.href;
+    }
+    media.referrerPolicy = "no-referrer";
+    media.onerror = () => {media.replaceWith(element("span", "Preview unavailable. Reference retained.", {class:"studio-hint"}));};
+    media.src = url;
+    message.replaceWith(media);
+  } catch { message.textContent = "Preview unavailable. Reference retained."; }
+}
+function sizeLabel(value) {
+  const pair = String(value).split("*").map(Number);
+  if (pair.length !== 2 || pair.some(n => !Number.isFinite(n))) return value;
+  const [width,height] = pair;
+  return `${width === height ? "Square" : width > height ? "Wide" : "Portrait"} · ${width} × ${height}`;
+}
 
 async function post(path, body, contentType = "application/json") {
   const response = await api.fetchApi(`/intuitive-studio/${path}`, {method:"POST", headers:{"Content-Type":contentType,"X-Intuitive-Studio":"1"}, body});
@@ -36,7 +79,7 @@ app.registerExtension({
       const node = this;
       const raw = node.widgets.find(w => w.name === "request_json");
       const root = element("section", null, {class:"intuitive-studio", "aria-label":"Intuitive Studio"});
-      let catalog, revision = 0;
+      let catalog, revision = 0, switching = false;
       const status = element("p", "Loading the verified model catalog…", {class:"studio-status", role:"status", "aria-live":"polite"});
       node.studioError = message => {status.textContent=String(message || "Generation failed. Check the native error details.");};
       function state() { try { return JSON.parse(raw.value); } catch { return {}; } }
@@ -53,10 +96,20 @@ app.registerExtension({
         return m.fields.filter(f => !["loras","enable_prompt_optimization","enable_prompt_expansion","prompt_upsampling"].includes(f.name));
       }
       async function switchWorkflow(mode, reference) {
+        if (switching || mode === state().workflow && !reference) return;
+        switching = true;
         try {
+          const active = app.extensionManager.workflow.activeWorkflow;
+          if (!active) throw new Error("Open a Studio workflow first.");
+          const snapshot = JSON.parse(JSON.stringify(app.graph.serialize()));
+          const stages = snapshot.extra.studio_stages || {};
+          delete snapshot.extra.studio_stages;
+          snapshot.extra.studio_outputs = JSON.parse(JSON.stringify(app.nodeOutputs));
+          stages[state().workflow] = snapshot;
           const response = await api.fetchApi(`/intuitive-studio/workflow/${mode}`);
           if (!response.ok) throw new Error("Workflow template is unavailable.");
-          const graph = await response.json();
+          const template = await response.json();
+          const graph = JSON.parse(JSON.stringify(stages[mode] || template));
           if (reference) {
             const next = JSON.parse(graph.nodes[0].widgets_values[0]);
             const selected = catalog.models.find(m => m.id === next.model);
@@ -64,17 +117,35 @@ app.registerExtension({
             if (imageField) next.values[imageField.name] = reference;
             graph.nodes[0].widgets_values[0] = JSON.stringify(next);
           }
-          // Native workflow loading retains ComfyUI's graph, queue and App Mode.
-          await app.loadGraphData(graph, true, true, `${mode}.app.json`);
+          graph.id = snapshot.id;
+          graph.extra.studio_stages = stages;
+          const outputs = graph.extra.studio_outputs || {};
+          await app.loadGraphData(graph, true, true, active);
+          app.nodeOutputs = outputs;
+          app.graph.change();
         } catch (error) { status.textContent = error.message; }
+        finally { switching = false; }
       }
       function makeField(field, parent) {
         const value = state().values?.[field.name] ?? field.default ?? "";
         const label = element("label", field.label + (field.required ? " *" : ""));
         let input;
-        if (field.choices) {
+        let durationValue;
+        if (field.name === "duration") {
+          const options = field.choices || Array.from({length:Math.floor((field.max-field.min)/(field.step || 1))+1}, (_,i)=>field.min+i*(field.step || 1));
+          input = element("input", null, {type:"range",min:"0",max:String(options.length-1),step:"1","aria-label":field.label});
+          input.value = String(Math.max(0, options.indexOf(Number(value))));
+          const output = element("output", `${options[Number(input.value)]} seconds`);
+          durationValue = () => options[Number(input.value)];
+          input.setAttribute("aria-valuetext", output.textContent);
+          input.addEventListener("input", () => {output.textContent=`${durationValue()} seconds`;input.setAttribute("aria-valuetext",output.textContent);});
+          label.append(output);
+          const ticks = element("div", null, {class:"studio-duration-ticks", "aria-hidden":"true"});
+          for (const seconds of options) ticks.append(element("span", `${seconds}s`));
+          label.append(ticks);
+        } else if (field.choices) {
           input = element("select", null, {"aria-label":field.label});
-          for (const option of field.choices) input.append(element("option", String(option), {value:String(option)}));
+          for (const option of field.choices) input.append(element("option", field.name === "size" ? sizeLabel(option) : String(option), {value:String(option)}));
           input.value = String(value);
         } else if (field.type === "boolean") {
           input = element("select", null, {"aria-label":field.label});
@@ -91,7 +162,7 @@ app.registerExtension({
         }
         input.title = field.description || "";
         input.oninput = () => {
-          let value = input.value;
+          let value = durationValue ? durationValue() : input.value;
           if (field.type === "boolean") value = value === "true";
           else if (["integer","number","float"].includes(field.type) && value !== "") value = Number(value);
           setField(field.name, value);
@@ -99,6 +170,14 @@ app.registerExtension({
         label.append(input);
         parent.append(label);
         if (field.media) {
+          const previews = element("div", null, {class:"studio-references"});
+          const showPreviews = () => {
+            previews.replaceChildren();
+            for (const ref of String(state().values?.[field.name] || "").split(/\n/).filter(Boolean)) assetPreview(ref.trim(), field.media, previews);
+          };
+          input.addEventListener("change", showPreviews);
+          parent.append(previews);
+          showPreviews();
           const file = element("input", null, {type:"file",accept:field.media+"/*", "aria-label":`Upload ${field.label}`});
           file.onchange = async () => {
             const selected = file.files?.[0];
@@ -113,6 +192,8 @@ app.registerExtension({
               const prior = field.type === "array" ? String(state().values?.[field.name] || "").trim() : "";
               input.value = [prior,result.reference].filter(Boolean).join("\n");
               setField(field.name,input.value);
+              rememberPreview(result.reference, URL.createObjectURL(selected));
+              showPreviews();
               status.textContent="Reference saved in your Forma library. No inference purchased.";
             } catch(error) { status.textContent=error.message; }
             finally { file.disabled=false; }
@@ -150,13 +231,27 @@ app.registerExtension({
         const presets=m.kind==="image" ? [["studio","Studio light","Soft studio lighting, clean composition."],["sunset","Warm light","Warm golden-hour lighting."],["night","Night light","Cool cinematic night lighting."]] : [["studio","Gentle push","Slow gentle camera push-in."],["sunset","Slow orbit","Slow smooth camera orbit around the subject."],["night","Locked shot","Static camera, subtle natural movement."]];
         for (const [look,title,suffix] of presets) {
           const button=element("button",null,{type:"button","aria-pressed":String(state().look===look),"aria-label":title});
-          button.append(graphic(look),element("span",title));
+          const photo = m.kind === "image" ? look : {studio:"push",sunset:"orbit",night:"locked"}[look];
+          button.append(element("img", null, {src:new URL(`./assets/${photo}.png`,import.meta.url).href,alt:"",loading:"lazy"}),element("span",title));
           button.onclick=()=>{update({look,values:{...state().values,prompt:((state().values?.prompt||"").replace(/\n\[Studio recipe\][\s\S]*$/,"")+"\n[Studio recipe] "+suffix).trim()}});render();};
           cards.append(button);
         }
         root.append(cards);
         const advanced=element("details"); advanced.append(element("summary","Advanced model settings"));
-        for (const field of fields(m)) {
+        const modelFields = fields(m);
+        if (modelFields.some(f => f.name === "width") && modelFields.some(f => f.name === "height")) {
+          const width = modelFields.find(f => f.name === "width"), height = modelFields.find(f => f.name === "height");
+          const presets = [[1024,1024],[768,1024],[1024,768]].filter(([w,h]) => w >= width.min && w <= width.max && h >= height.min && h <= height.max);
+          const current = [state().values?.width ?? width.default,state().values?.height ?? height.default];
+          if (!presets.some(([w,h]) => w === current[0] && h === current[1])) presets.unshift(current);
+          const label = element("label", "Output size");
+          const size = element("select", null, {"aria-label":"Output size"});
+          for (const pair of presets) size.append(element("option",sizeLabel(pair.join("*")),{value:pair.join("*")}));
+          size.value = current.join("*");
+          size.onchange = () => {const [width,height]=size.value.split("*").map(Number);update({values:{...state().values,width,height}});};
+          label.append(size);root.append(label);
+        }
+        for (const field of modelFields.filter(f => !["width","height"].includes(f.name))) {
           const primary=field.name==="prompt" || field.media || ["size","duration","width","height"].includes(field.name);
           makeField(field,primary ? root : advanced);
         }

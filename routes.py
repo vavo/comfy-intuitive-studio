@@ -2,6 +2,8 @@
 import asyncio
 import json
 import uuid
+import tempfile
+import mimetypes
 from pathlib import Path
 from urllib.parse import urlsplit
 from aiohttp import web
@@ -43,6 +45,22 @@ def install(routes):
             return web.json_response({"cents": result["quote"]["cents"], "expires": result["quote"]["expires"]}, headers={"Cache-Control": "no-store"})
         except (FormaError, ValueError, TypeError) as error:
             return web.json_response({"error": str(error) if isinstance(error, FormaError) else "Invalid request."}, status=400)
+
+    @routes.post("/intuitive-studio/preview")
+    async def preview(request):
+        guard(request)
+        try:
+            body = await request.json()
+            asset_id = str(uuid.UUID(body["reference"].removeprefix("asset:")))
+            kind = body["kind"]
+            if kind not in {"image", "video", "audio"}:
+                raise ValueError()
+            with tempfile.TemporaryDirectory(prefix="studio-preview-") as directory:
+                path = await asyncio.to_thread(BudgetClient().download, asset_id, directory, kind)
+                return web.Response(body=path.read_bytes(), content_type=mimetypes.guess_type(path)[0],
+                                    headers={"Cache-Control": "no-store"})
+        except (FormaError, ValueError, KeyError, TypeError, AttributeError):
+            return web.json_response({"error": "Preview unavailable. The reference is still saved."}, status=400)
 
     @routes.post("/intuitive-studio/upload")
     async def upload(request):

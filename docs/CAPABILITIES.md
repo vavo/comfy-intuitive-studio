@@ -57,3 +57,12 @@ IDs 1/2 across every app can reuse a mounted DOM host after a tab switch, leavin
 the next custom panel empty. Bundled workflows now have distinct stable node IDs.
 This fixes the reproduced tab-switch cycle without modifying ComfyUI. Request
 recovery uses the saved session/take, so changing graph IDs does not buy new jobs.
+
+## Studio controls (2026-11-01)
+
+- Six bundled photographic modifier cards use Z-Image Turbo through Forma → Runpod Public Endpoints. Prompts and job IDs are in `web/assets/provenance.json`; generation cost was six cents. The photographs illustrate lighting and framing, not guaranteed model output.
+- Uploads preview images, video and audio. Existing `asset:` references load through a same-origin, header-guarded server proxy; credentials never reach the browser. Temporary downloads are deleted after reading, and previews are not persisted in workflow JSON.
+- Dimensions use model-specific dropdowns. Width/height models offer 768×1024, 1024×1024 and 1024×768, retaining an existing custom pair. Enumerated model sizes retain their full catalog choices. InfiniteTalk offers 480p/720p; Qwen Image Edit has no size parameter.
+- WAN 2.1 duration stops are 5/10/15 seconds, WAN 2.2 stops are 5/8/10/15. These are documented pricing tiers; other lengths are rejected before submission. Sources: https://docs.runpod.io/public-endpoints/models/wan-2-1-i2v and https://docs.runpod.io/public-endpoints/models/wan-2-2-i2v.
+- Size presets on free-form endpoints conform to their documented width*height input format. The hosted worker may derive the final aspect ratio from the input image. Every size has not been purchased for live inference validation.
+- Workflow selection reuses the active native workflow object. Per-stage graph state and output references are saved under `extra.studio_stages`, without recursive copies. Existing unrelated tabs stay intact. The native duplicate panel title is hidden only when a Studio app is present.

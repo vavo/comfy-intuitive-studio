@@ -1,0 +1,38 @@
+[
+  {
+    "name": "studio",
+    "jobId": "cb6f0bdd-cb42-436e-b684-559b8b9a39f4",
+    "prompt": "Photorealistic editorial photograph of a single matte ivory ceramic sculptural vase with one olive branch on a pale travertine plinth, curved dark charcoal studio backdrop. Restrained sage green, warm stone and charcoal palette, realistic ceramic texture, fine film grain, premium still life photography, no text, no graphics, no logos. Medium shot, soft diffused neutral studio lighting, delicate shadows.",
+    "model": "z-image-turbo"
+  },
+  {
+    "name": "sunset",
+    "jobId": "6bd91964-7861-45c3-a13d-f16653e474ba",
+    "prompt": "Photorealistic editorial photograph of a single matte ivory ceramic sculptural vase with one olive branch on a pale travertine plinth, curved dark charcoal studio backdrop. Restrained sage green, warm stone and charcoal palette, realistic ceramic texture, fine film grain, premium still life photography, no text, no graphics, no logos. Medium shot, warm amber golden-hour sunlight from the left, long soft shadow.",
+    "model": "z-image-turbo"
+  },
+  {
+    "name": "night",
+    "jobId": "cc5cc68b-b385-4808-8371-00cb79ea5457",
+    "prompt": "Photorealistic editorial photograph of a single matte ivory ceramic sculptural vase with one olive branch on a pale travertine plinth, curved dark charcoal studio backdrop. Restrained sage green, warm stone and charcoal palette, realistic ceramic texture, fine film grain, premium still life photography, no text, no graphics, no logos. Medium shot, cool moonlit blue lighting, subtle cyan rim light, deep cinematic shadows.",
+    "model": "z-image-turbo"
+  },
+  {
+    "name": "push",
+    "jobId": "ecdeadac-529b-4073-a8c8-a1391ef07662",
+    "prompt": "Photorealistic editorial photograph of a single matte ivory ceramic sculptural vase with one olive branch on a pale travertine plinth, curved dark charcoal studio backdrop. Restrained sage green, warm stone and charcoal palette, realistic ceramic texture, fine film grain, premium still life photography, no text, no graphics, no logos. Close camera view towards the vase, shallow depth of field, soft neutral studio lighting.",
+    "model": "z-image-turbo"
+  },
+  {
+    "name": "orbit",
+    "jobId": "6df2d950-fa85-4f5a-ae38-9713fa27c50f",
+    "prompt": "Photorealistic editorial photograph of a single matte ivory ceramic sculptural vase with one olive branch on a pale travertine plinth, curved dark charcoal studio backdrop. Restrained sage green, warm stone and charcoal palette, realistic ceramic texture, fine film grain, premium still life photography, no text, no graphics, no logos. Three quarter side camera view of the vase and plinth, sculptural depth and visible side of plinth, soft neutral studio lighting.",
+    "model": "z-image-turbo"
+  },
+  {
+    "name": "locked",
+    "jobId": "e7100987-17a8-4312-9543-ff54e5c2d9f4",
+    "prompt": "Photorealistic editorial photograph of a single matte ivory ceramic sculptural vase with one olive branch on a pale travertine plinth, curved dark charcoal studio backdrop. Restrained sage green, warm stone and charcoal palette, realistic ceramic texture, fine film grain, premium still life photography, no text, no graphics, no logos. Wide symmetrical front camera view, entire vase and plinth centered, sharp stable composition, soft neutral studio lighting.",
+    "model": "z-image-turbo"
+  }
+]

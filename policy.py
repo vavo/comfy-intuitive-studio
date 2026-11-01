@@ -18,6 +18,17 @@ def model_fields(model, workflow):
             if field["name"] == "duration":
                 # Live worker rejected 3s; documented duration tiers, checked 2026-10-30.
                 field.update(choices=[5, 8, 10, 15], default=5)
+    sizes = {
+        "black-forest-labs-flux-1-kontext-dev": ["1024*1024", "768*1024", "1024*768"],
+        "qwen-image-t2i": ["1024*1024", "768*1024", "1024*768"],
+        "wan-2-1-i2v-720": ["1280*720", "720*1280", "960*960"],
+        "wan-2-2-i2v-720": ["1280*720", "720*1280", "960*960"],
+    }
+    for field in fields:
+        if field["name"] == "size" and model["id"] in sizes:
+            field["choices"] = sizes[model["id"]]
+        if field["name"] == "duration" and model["id"] == "wan-2-1-i2v-720":
+            field.update(choices=[5, 10, 15], default=5)
     return fields
 
 

@@ -19,10 +19,10 @@ def model_fields(model, workflow):
                 # Live worker rejected 3s; documented duration tiers, checked 2026-10-30.
                 field.update(choices=[5, 8, 10, 15], default=5)
     sizes = {
-        "black-forest-labs-flux-1-kontext-dev": ["1024*1024", "768*1024", "1024*768"],
-        "qwen-image-t2i": ["1024*1024", "768*1024", "1024*768"],
-        "wan-2-1-i2v-720": ["1280*720", "720*1280", "960*960"],
-        "wan-2-2-i2v-720": ["1280*720", "720*1280", "960*960"],
+        "black-forest-labs-flux-1-kontext-dev": ["768*768", "1024*1024", "768*1024", "1152*1536", "1024*768", "1536*1152"],
+        "qwen-image-t2i": ["768*768", "1024*1024", "768*1024", "1152*1536", "1024*768", "1536*1152"],
+        "wan-2-1-i2v-720": ["640*360", "1280*720", "360*640", "720*1280", "480*480", "960*960"],
+        "wan-2-2-i2v-720": ["640*360", "1280*720", "360*640", "720*1280", "480*480", "960*960"],
     }
     for field in fields:
         if field["name"] == "size" and model["id"] in sizes:

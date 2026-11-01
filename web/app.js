@@ -1,6 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 import { element } from "./studio.js";
+import { sizeControls } from "./size-controls.js";
 
 const labels = {
   "text-to-image": "Create an image", "image-to-image": "Edit an image",
@@ -52,7 +53,7 @@ async function assetPreview(reference, kind, target) {
 }
 function sizeLabel(value) {
   const pair = String(value).split("*").map(Number);
-  if (pair.length !== 2 || pair.some(n => !Number.isFinite(n))) return value;
+  if (pair.length !== 2 || pair.some(n => !Number.isFinite(n))) return ({"480p":"Low · 480p","720p":"High · 720p"})[value] || value;
   const [width,height] = pair;
   return `${width === height ? "Square" : width > height ? "Wide" : "Portrait"} · ${width} × ${height}`;
 }
@@ -140,6 +141,10 @@ app.registerExtension({
       }
       function makeField(field, parent) {
         const value = state().values?.[field.name] ?? field.default ?? "";
+        if (field.name === "size" && field.choices?.every(v => /^\d+\*\d+$/.test(v))) {
+          parent.append(sizeControls(field.choices, String(value), size => setField(field.name,size)));
+          return;
+        }
         const label = element("label", field.label + (field.required ? " *" : ""));
         let input;
         let durationValue;
@@ -273,15 +278,13 @@ app.registerExtension({
         const modelFields = fields(m);
         if (modelFields.some(f => f.name === "width") && modelFields.some(f => f.name === "height")) {
           const width = modelFields.find(f => f.name === "width"), height = modelFields.find(f => f.name === "height");
-          const presets = [[1024,1024],[768,1024],[1024,768]].filter(([w,h]) => w >= width.min && w <= width.max && h >= height.min && h <= height.max);
+          const presets = [[768,768],[1024,1024],[768,1024],[1152,1536],[1024,768],[1536,1152]].filter(([w,h]) => w >= width.min && w <= width.max && h >= height.min && h <= height.max);
           const current = [state().values?.width ?? width.default,state().values?.height ?? height.default];
           if (!presets.some(([w,h]) => w === current[0] && h === current[1])) presets.unshift(current);
-          const label = element("label", "Output size");
-          const size = element("select", null, {"aria-label":"Output size"});
-          for (const pair of presets) size.append(element("option",sizeLabel(pair.join("*")),{value:pair.join("*")}));
-          size.value = current.join("*");
-          size.onchange = () => {const [width,height]=size.value.split("*").map(Number);update({values:{...state().values,width,height}});};
-          label.append(size);root.append(label);
+          root.append(sizeControls(presets.map(pair=>pair.join("*")),current.join("*"), value => {
+            const [width,height]=value.split("*").map(Number);
+            update({values:{...state().values,width,height}});
+          }));
         }
         for (const field of modelFields.filter(f => !["width","height"].includes(f.name))) {
           const primary=field.name==="prompt" || field.media || ["size","duration","width","height"].includes(field.name);

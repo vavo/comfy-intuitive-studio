@@ -72,3 +72,11 @@ recovery uses the saved session/take, so changing graph IDs does not buy new job
 Gentle push and Slow orbit use silent looping H.264 clips of the same vase. Gentle push is a six-second deterministic zoom illustration from the source photograph. Slow orbit uses a Forma/WAN 2.2 generation with actual perspective change, trimmed and reversed for a repeating loop. Locked shot keeps the source photograph stationary. These illustrate the prompt modifiers; they are not a guarantee of a particular model's camera control.
 
 Previews play only while visible and stop when the form is replaced. Play/Pause previews affects both clips without changing the selected modifier. Reduced-motion users start with still posters and can opt into playback.
+
+### Aspect ratio and resolution
+
+Dimension fields now separate the exact aspect ratio from resolution. Within each ratio, choices are sorted by pixel area and labeled Low/High (Medium for intermediate sizes). Changing ratio retains Low or High where possible. Existing custom width/height values remain selectable.
+
+FLUX Dev/Schnell and the flexible Kontext/Qwen size inputs offer square 768×768 / 1024×1024, portrait 768×1024 / 1152×1536, and wide 1024×768 / 1536×1152. WAN size requests offer wide 640×360 / 1280×720, portrait 360×640 / 720×1280, and square 480×480 / 960×960. These are requested dimensions; hosted I2V workers can derive the delivered aspect ratio from the starting asset. New resolution pairs have been validated in the form and request policy, not purchased for inference testing.
+
+Z-Image and Qwen Edit 2511 retain their documented enumerations. A ratio with one native size shows Native plus a limitation notice; no synthetic upscaling/downscaling is silently applied. InfiniteTalk labels its 480p/720p choices Low/High. Qwen Image Edit exposes no output-size input. Sources checked 2026-11-01: https://docs.runpod.io/public-endpoints/models/z-image-turbo and https://docs.runpod.io/public-endpoints/models/qwen-image-edit-2511.

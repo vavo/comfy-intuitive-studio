@@ -44,6 +44,20 @@ class PolicyTests(unittest.TestCase):
                 policy.validate(request(model=model["id"], workflow=model["workflows"][0],
                                         values={"prompt": "A vase", "size": "123*999"}))
 
+    def test_flexible_size_presets_have_two_resolutions_per_exact_ratio(self):
+        from math import gcd
+        for model_id in ["black-forest-labs-flux-1-kontext-dev", "qwen-image-t2i",
+                         "wan-2-1-i2v-720", "wan-2-2-i2v-720"]:
+            fields = policy.model_fields(policy.MODELS[model_id], "")
+            sizes = next(f["choices"] for f in fields if f["name"] == "size")
+            ratios = {}
+            for size in sizes:
+                width, height = map(int, size.split("*"))
+                divisor = gcd(width, height)
+                ratios.setdefault((width // divisor, height // divisor), set()).add(width * height)
+            self.assertEqual(len(ratios), 3)
+            self.assertTrue(all(len(areas) >= 2 for areas in ratios.values()), model_id)
+
     def test_wan_duration_choices_are_model_specific(self):
         for model_id, durations in [("wan-2-1-i2v-720", [5, 10, 15]),
                                     ("wan-2-2-i2v-720", [5, 8, 10, 15])]:

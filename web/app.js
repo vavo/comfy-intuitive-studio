@@ -2,6 +2,7 @@ import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 import { element } from "./studio.js";
 import { sizeControls } from "./size-controls.js";
+import { connectionPanel } from "./connection.js";
 
 const labels = {
   "text-to-image": "Create an image", "image-to-image": "Edit an image",
@@ -80,6 +81,11 @@ app.registerExtension({
       const node = this;
       const raw = node.widgets.find(w => w.name === "request_json");
       const root = element("section", null, {class:"intuitive-studio", "aria-label":"Intuitive Studio"});
+      const connection = connectionPanel(() => {
+        for (const url of previewCache.values()) URL.revokeObjectURL(url);
+        previewCache.clear();
+        status.textContent = "Forma connection changed. Check the price before running.";
+      });
       let catalog, revision = 0, switching = false;
       let previewMotion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const previewObserver = new IntersectionObserver(entries => {
@@ -91,7 +97,7 @@ app.registerExtension({
       const removed = node.onRemoved;
       node.onRemoved = function () {
         for (const video of root.querySelectorAll(".studio-cards video")) video.pause();
-        previewObserver.disconnect();removed?.apply(this, arguments);
+        connection.dispose();previewObserver.disconnect();removed?.apply(this, arguments);
       };
       const status = element("p", "Loading the verified model catalog…", {class:"studio-status", role:"status", "aria-live":"polite"});
       node.studioError = message => {status.textContent=String(message || "Generation failed. Check the native error details.");};
@@ -225,6 +231,7 @@ app.registerExtension({
         root.append(element("p","INTUITIVE STUDIO · OPEN WEIGHTS",{class:"studio-eyebrow"}),
           element("h2",labels[state().workflow] || "Make something."),
           element("p","Your idea. Your model. One Forma balance.",{class:"studio-hint"}));
+        root.append(connection.element);
         const modes = element("select",null,{"aria-label":"Workflow"});
         for (const mode of catalog.workflows) {
           const count = catalog.models.filter(m => m.workflows.includes(mode)).length;
@@ -308,7 +315,7 @@ app.registerExtension({
         const next=element("button","New take",{type:"button"});
         next.onclick=()=>{update({run:(state().run||1)+1});render();status.textContent="New take selected. Running will purchase a new generation.";};
         actions.append(price,next);root.append(actions,status);
-        if (!catalog.keyConfigured) status.textContent="Set FORMA_API_KEY_FILE on the ComfyUI server. Keys never belong in workflows.";
+
         const results=node.properties.studio_results || [];
         const latest=results.at(-1);
         if (latest) {

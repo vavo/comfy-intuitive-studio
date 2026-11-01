@@ -4,11 +4,12 @@ import json
 import uuid
 import tempfile
 import mimetypes
+import re
 from pathlib import Path
 from urllib.parse import urlsplit
 from aiohttp import web
 from .policy import catalog, validate
-from .vendor.client import FormaError, key_status
+from .vendor.client import FormaClient, FormaError, key_status, save_key
 from .budget import BudgetClient
 
 ROOT = Path(__file__).parent
@@ -26,6 +27,37 @@ def install(routes):
     @routes.get("/intuitive-studio/catalog")
     async def get_catalog(request):
         return web.json_response({**catalog(), "keyConfigured": key_status()["configured"]})
+
+    @routes.post("/intuitive-studio/connection")
+    async def connection(request):
+        guard(request)
+        headers = {"Cache-Control": "no-store"}
+        try:
+            data = bytearray()
+            async for chunk in request.content.iter_chunked(512):
+                data.extend(chunk)
+                if len(data) > 512:
+                    raise ValueError()
+            body = json.loads(data)
+            if not isinstance(body, dict) or set(body) - {"key"}:
+                raise ValueError()
+            key = body.get("key")
+            if "key" in body:
+                if not isinstance(key, str) or not re.fullmatch(r"forma_[0-9a-f]{64}", key):
+                    raise FormaError("Paste a complete Forma API key.")
+            elif not key_status()["configured"]:
+                return web.json_response({"connected": False, **key_status()}, headers=headers)
+            # A failed replacement must leave the previous working credential intact.
+            await asyncio.to_thread(FormaClient(api_key=key).request, "/wallet")
+            if key is not None:
+                await asyncio.to_thread(save_key, key)
+            return web.json_response({"connected": True, **key_status()}, headers=headers)
+        except FormaError as error:
+            return web.json_response({"connected": False, "error": str(error), **key_status()}, status=400, headers=headers)
+        except (ValueError, TypeError, UnicodeDecodeError):
+            return web.json_response({"error": "Invalid connection request."}, status=400, headers=headers)
+        except OSError:
+            return web.json_response({"error": "Could not save the key. Check server storage permissions."}, status=500, headers=headers)
 
     @routes.get("/intuitive-studio/workflow/{mode}")
     async def workflow(request):

@@ -42,7 +42,9 @@ def environment_key_configured():
 def key_status():
     path = saved_key_path()
     managed = environment_key_configured()
-    return {"configured": managed or bool(path and path.is_file()), "managed": managed}
+    saved = bool(path and path.is_file())
+    return {"configured": managed or saved, "managed": managed and not saved,
+            "source": "saved" if saved else "server" if managed else None}
 
 
 def save_key(key):
@@ -83,19 +85,20 @@ class FormaClient:
         url = urlsplit(self.base)
         if (url.scheme != "https" and not (url.scheme == "http" and url.hostname in ("localhost", "127.0.0.1"))) or url.username or url.password or url.query or url.fragment:
             raise FormaError("FORMA_API_URL must use HTTPS (HTTP is allowed only on localhost).")
-        self.key = api_key if api_key is not None else os.environ.get("FORMA_API_KEY", "").strip()
+        self.key = api_key if api_key is not None else ""
         if api_key is None:
             try:
+                path = saved_key_path()
+                if path and path.is_file():
+                    self.key = path.read_text().strip()
+                if not self.key:
+                    self.key = os.environ.get("FORMA_API_KEY", "").strip()
                 if not self.key and os.environ.get("FORMA_API_KEY_FILE"):
                     self.key = Path(os.environ["FORMA_API_KEY_FILE"]).read_text().strip()
-                if not self.key and not environment_key_configured():
-                    path = saved_key_path()
-                    if path and path.is_file():
-                        self.key = path.read_text().strip()
             except OSError:
                 raise FormaError("Cannot read the Forma key. Check the server's credential file permissions.") from None
         if not self.key:
-            raise FormaError("Create a key in Forma Account settings, then open ComfyUI Settings → Forma → API key. Environment variables are also supported.")
+            raise FormaError("Open Connect Forma in the Studio app and enter your Forma API key.")
         self.opener = build_opener(NoRedirect())
 
     def request(self, path, body=None, *, media_type=None, upload_id=None):

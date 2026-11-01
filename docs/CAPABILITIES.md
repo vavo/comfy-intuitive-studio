@@ -80,3 +80,18 @@ Dimension fields now separate the exact aspect ratio from resolution. Within eac
 FLUX Dev/Schnell and the flexible Kontext/Qwen size inputs offer square 768×768 / 1024×1024, portrait 768×1024 / 1152×1536, and wide 1024×768 / 1536×1152. WAN size requests offer wide 640×360 / 1280×720, portrait 360×640 / 720×1280, and square 480×480 / 960×960. These are requested dimensions; hosted I2V workers can derive the delivered aspect ratio from the starting asset. New resolution pairs have been validated in the form and request policy, not purchased for inference testing.
 
 Z-Image and Qwen Edit 2511 retain their documented enumerations. A ratio with one native size shows Native plus a limitation notice; no synthetic upscaling/downscaling is silently applied. InfiniteTalk labels its 480p/720p choices Low/High. Qwen Image Edit exposes no output-size input. Sources checked 2026-11-01: https://docs.runpod.io/public-endpoints/models/z-image-turbo and https://docs.runpod.io/public-endpoints/models/qwen-image-edit-2511.
+
+### Connect Forma
+
+Every Studio workflow now includes a Connect Forma section with a masked key
+field, Save and connect, and Check connection. A no-cost `/wallet` request verifies
+credentials before saving; a failed replacement preserves the previous key.
+Saved keys override server environment keys. Status distinguishes the saved key
+from the server fallback and supports retry after a connection failure.
+
+The key is stored under the ComfyUI base directory at `.forma/api.key` (file mode
+0600, directory 0700), outside the HTTP-served user directory. It is shared by
+workflows on that server, never returned to the browser or placed in graph data.
+The browser clears the input on submission; connection responses use no-store.
+Changing accounts does not migrate existing asset references or reset the spend
+ledger. The server fallback credential file is never modified.

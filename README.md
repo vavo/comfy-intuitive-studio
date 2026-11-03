@@ -4,6 +4,8 @@ Create an image, edit it, and animate the result in one ComfyUI App Mode tab.
 A Forma key pays for generation on Runpod Public Endpoints with published model
 weights. Your computer runs the interface on CPU. No model download is required.
 
+![ComfyUI App Mode showing the four Studio workflows beside the Create form and its lighting presets](docs/screenshots/workflow-chooser.png)
+
 ## Install and start
 
 On macOS or Linux, install Git and **uv**. On macOS with Homebrew, run
@@ -37,6 +39,10 @@ If port 8190 is busy, run `STUDIO_PORT=8191 ./start.sh` and use the URL it print
 3. Click **Edit this result** or **Animate this result** to carry the image into
    the next workflow. **Choose workflow** opens the launcher over the result.
    **Back to results** returns to the selected image or video with its settings.
+
+![Studio’s video player showing a ceramic lighthouse on a sunlit desk at the start of a five-second clip](docs/screenshots/lighthouse-video.jpg)
+
+*The same ceramic lighthouse after editing and animating it in Studio.*
 
 To try App Mode before connecting Forma, open the
 [free CPU probe](http://127.0.0.1:8190/?template=capability-probe.app&source=comfy-intuitive-studio&mode=linear)

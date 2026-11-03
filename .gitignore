@@ -5,3 +5,7 @@ __pycache__/
 .env*
 *.key
 .DS_Store
+# Private credentials and spend records from a local ComfyUI base directory.
+.forma/
+.intuitive-studio/
+.pytest_cache/

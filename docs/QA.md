@@ -70,22 +70,47 @@ Repeated recovery writes another local output file, not another paid generation.
   the desired owned reference when switching models.
 - Native Number of runs repeats the same Studio take. Use New take for a fresh
   paid generation; this intentionally avoids accidental batch purchases.
-- Existing ComfyUI Python dependencies were reused read-only. A clean, fully fresh
-  multi-GB Python/Torch installation was not exercised on this nearly-full disk.
+- The October run reused an existing ComfyUI Python environment. The November
+  clean-install check below covers the standalone installer.
 - This is a local trusted-user prototype. Public deployment/multi-user isolation,
   organizer acceptance and a competition submission are outside this verification.
 
+## Standalone install verification, 2026-11-03
+
+On Apple silicon, a fresh checkout with no runtime, Forma key or external
+ComfyUI Python setting installed the pinned backend and frontend through
+`./start.sh`. uv used Python 3.12.11 and its normal package cache. The installed
+runtime occupied about 1.7 GiB. The first CPU startup took a few minutes.
+
+The README’s direct template link opened Create in native App Mode. The first
+visit showed ComfyUI’s welcome tour and the Studio form showed **Connect Forma ·
+Not connected**. All 20 backend tests passed in the new environment. The live
+probe checked ten workflows and ten allowed models and produced a 768 × 512
+image with zero paid requests. A second setup passed with uv in offline mode.
+Linux standalone installation has not been exercised in this verification.
+
+## Results navigation, 2026-11-03
+
+Browser checks used an existing image and an existing MP4 in isolated local
+workflows. **Choose workflow → Back to results** restored the selected output
+and form settings for both. Create → Edit → Create and Animate → Edit → Animate
+also restored the respective output and settings. The video check covered WAN
+image-to-video. Talking portrait shares its viewer and still awaits a separate
+end-to-end test.
+
 ## Reproduce
 
+Run `./start.sh`. With the standalone server running, use a second terminal in
+the same checkout:
+
 ```sh
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
-sh scripts/launch.sh
-# In another terminal, while the server is running:
-PYTHONDONTWRITEBYTECODE=1 python3 scripts/verify_runtime.py
+.runtime/venv/bin/python -B -m unittest discover -s tests -v
+.runtime/venv/bin/python -B scripts/verify_runtime.py
 ```
 
-The integration script purchases no inference. It intentionally exercises error
-responses and produces one labelled deterministic test image.
+Set `STUDIO_PORT` for the verification command if the server uses a custom port.
+When reusing a ComfyUI environment, substitute its Python executable. The
+integration check exercises rejected requests and saves one local probe image.
 
 ![Desktop native App Mode](evidence/desktop-video-app.jpg)
 

@@ -1,11 +1,12 @@
 """No-cost acceptance checks against the running local ComfyUI instance."""
 import json
+import os
 import time
 import uuid
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-BASE = "http://127.0.0.1:8190"
+BASE = f"http://127.0.0.1:{int(os.environ.get('STUDIO_PORT', '8190'))}"
 
 
 def request(path, body=None, headers=None):

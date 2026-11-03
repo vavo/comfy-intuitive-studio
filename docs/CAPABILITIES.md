@@ -113,3 +113,11 @@ Browser QA at 1280×720 verified Create → Edit → Animate → Create, unchang
 count and restored prompt, unavailable buttons, and removal/recreation when
 switching between graph and App Mode. No browser errors. No new inference was
 purchased; a new-result transition was not exercised in this pass.
+
+After generation, **Choose workflow** in the native result toolbar opens the
+same launcher over the preview. **Back to results**, Escape from the launcher,
+or selecting the current workflow closes it. The native viewer and history stay
+mounted; opening or closing the chooser does not load a graph or submit a job.
+Switching workflows uses the existing stage snapshots. Browser-tested with a
+local image: the selected result and form values survived both a chooser round
+trip and a Create → Edit → Create switch.

@@ -5,6 +5,8 @@ let mounted;
 let owner;
 let selection;
 let observer;
+let browsingRoot;
+let chooseButton;
 const descriptions = {
   "text-to-image":"Prompt → image", "image-to-image":"Image → image",
   "text-to-video":"Prompt → video", "image-to-video":"Image → video",
@@ -35,14 +37,45 @@ function clear() {
   document.querySelectorAll(".studio-welcome-replaced").forEach(el=>el.classList.remove("studio-welcome-replaced"));
 }
 function sync() {
-  const welcome = document.querySelector('#linearCenterPanel [data-testid="linear-welcome"]');
+  const center = document.querySelector("#linearCenterPanel");
+  const welcome = center?.querySelector('[data-testid="linear-welcome"]');
   const root = document.querySelector('#linear-right-panel .intuitive-studio[aria-label="Intuitive Studio"]');
   const source = root && sources.get(root);
   const data = source?.();
-  if (!welcome || !data) {clear();return;}
-  if (owner === root && selection === data.mode && mounted?.isConnected) return;
+  const toolbar = data && !welcome && center?.querySelector('[data-testid="linear-output-info"]');
+  if (toolbar && !toolbar.querySelector('[data-testid="linear-cancel-run"]')) {
+    if (!chooseButton || chooseButton.parentElement !== toolbar) {
+      chooseButton?.remove();
+      chooseButton = element("button","Choose workflow",{type:"button",class:"studio-choose-workflow"});
+      chooseButton.onclick = () => {
+        browsingRoot = document.querySelector('#linear-right-panel .intuitive-studio[aria-label="Intuitive Studio"]');
+        sync();
+        mounted?.querySelector(".studio-back-results")?.focus();
+      };
+      toolbar.append(chooseButton);
+    }
+  } else {
+    chooseButton?.remove();chooseButton = null;browsingRoot = null;
+  }
+  if (browsingRoot !== root) browsingRoot = null;
+  const overResults = !!browsingRoot;
+  if (!data || (!welcome && !overResults)) {clear();return;}
+  if (owner === root && selection === data.mode && mounted?.isConnected &&
+      mounted.classList.contains("studio-over-results") === overResults) return;
   clear();owner = root;selection = data.mode;
   const panel = element("section",null,{class:"studio-launcher","aria-label":"Choose a workflow"});
+  function backToResults() {
+    browsingRoot = null;sync();chooseButton?.focus();
+  }
+  if (overResults) {
+    panel.classList.add("studio-over-results");
+    const back = element("button","Back to results",{type:"button",class:"studio-back-results"});
+    back.onclick = backToResults;
+    panel.onkeydown = event => {
+      if (event.key === "Escape") {event.preventDefault();event.stopPropagation();backToResults();}
+    };
+    panel.append(back);
+  }
   panel.append(element("p","INTUITIVE STUDIO",{class:"studio-launcher-eyebrow"}),element("h1","What will you make?"));
   const grid = element("div",null,{class:"studio-launcher-grid"});
   const more = element("details",null,{class:"studio-launcher-more"});
@@ -54,6 +87,7 @@ function sync() {
     button.append(icon(mode),element("strong",data.labels[mode]),element("span",descriptions[mode]));
     if (available) {
       button.onclick = async () => {
+        if (overResults && mode === data.mode) {backToResults();return;}
         for (const item of grid.querySelectorAll("button")) item.disabled = true;
         try {await data.switchWorkflow(mode);} finally {
           for (const item of grid.querySelectorAll("button")) item.disabled = false;
@@ -67,8 +101,9 @@ function sync() {
     more.append(element("summary",`More workflows · ${count} awaiting endpoints`),unavailable);
     panel.append(more);
   }
-  welcome.classList.add("studio-welcome-replaced");
-  welcome.after(panel);mounted = panel;
+  if (overResults) center.append(panel);
+  else {welcome.classList.add("studio-welcome-replaced");welcome.after(panel);}
+  mounted = panel;
 }
 export function registerLauncher(root, source) {
   sources.set(root,source);

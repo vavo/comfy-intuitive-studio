@@ -47,3 +47,11 @@
 .studio-launcher-more summary { cursor:pointer; margin-bottom:14px; }
 .studio-launcher button:disabled { opacity:.45; cursor:default; }
 @media (max-width:600px) { .studio-launcher { padding:72px 16px 24px; } .studio-launcher-grid { grid-template-columns:1fr; } }
+
+#linearCenterPanel .studio-choose-workflow,.studio-launcher .studio-back-results {
+  min-height:0; padding:6px 12px; border:1px solid #62746a; border-radius:8px;
+  background:#252c2e; color:#edf1e9; cursor:pointer; font:inherit;
+}
+.studio-launcher .studio-back-results { margin-bottom:20px; }
+#linearCenterPanel > .studio-over-results { position:absolute; inset:0; z-index:22; background:var(--comfy-menu-bg,#202224); padding-top:24px; }
+#linearCenterPanel:has(> .studio-over-results) > :not(.studio-over-results) { visibility:hidden; }

@@ -12,6 +12,60 @@ export function element(tag, text, attrs = {}) {
   return el;
 }
 
+let helpSequence = 0;
+function dismissFieldHelp(event) {
+  const tip = document.querySelector(".studio-tooltip:popover-open");
+  if (!tip) return;
+  if (event.type === "keydown") {
+    if (event.key !== "Escape") return;
+    event.preventDefault();
+    event.stopPropagation();
+  } else if (tip.parentElement.contains(event.target)) return;
+  tip.hidePopover();
+}
+document.addEventListener("pointerdown", dismissFieldHelp, true);
+document.addEventListener("keydown", dismissFieldHelp, true);
+
+export function fieldInfo(control, name, description) {
+  const id = `studio-help-${++helpSequence}`;
+  const wrap = element("span", null, {class:"studio-field-info"});
+  const trigger = element("button", "ⓘ", {type:"button", class:"studio-info-trigger",
+    "aria-label":`Help for ${name}`, "aria-describedby":id});
+  const tip = element("span", description, {id, role:"tooltip", popover:"manual", class:"studio-tooltip"});
+  control.setAttribute("aria-describedby", [control.getAttribute("aria-describedby"),id].filter(Boolean).join(" "));
+  function show() {
+    if (tip.matches(":popover-open")) return;
+    document.querySelector(".studio-tooltip:popover-open")?.hidePopover();
+    tip.showPopover();
+    const anchor = trigger.getBoundingClientRect();
+    const box = tip.getBoundingClientRect();
+    tip.style.left = `${Math.max(6, Math.min(anchor.left, window.innerWidth - box.width - 6))}px`;
+    tip.style.top = `${anchor.bottom + box.height <= window.innerHeight - 6
+      ? anchor.bottom : Math.max(6, anchor.top - box.height)}px`;
+  }
+  trigger.onpointerenter = event => { if (event.pointerType !== "touch") show(); };
+  trigger.onfocus = show;
+  trigger.onclick = show;
+  trigger.onblur = () => tip.hidePopover();
+  wrap.onpointerleave = () => { if (document.activeElement !== trigger) tip.hidePopover(); };
+  wrap.append(trigger, tip);
+  return wrap;
+}
+
+export function fieldHeading(control, name, description) {
+  const heading = element("div", null, {class:"studio-field-heading"});
+  if (control.matches("input,select,textarea")) {
+    control.id ||= `studio-control-${++helpSequence}`;
+    heading.append(element("label", name, {for:control.id}));
+  } else {
+    control.setAttribute("role","group");
+    control.setAttribute("aria-label",name);
+    heading.append(element("span",name));
+  }
+  heading.append(fieldInfo(control, name.replace(/ \*$/, ""), description));
+  return heading;
+}
+
 export function graphic(look) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 150 85");
@@ -43,7 +97,9 @@ app.registerExtension({
       const input = element("input", null, {"aria-label": "Test title", maxlength: "38"});
       const cards = element("div", null, {class: "studio-cards"});
       const help = element("p", "Choose a look, then use ComfyUI’s Run button. The resulting image proves the real queue executed.", {class: "studio-hint"});
-      root.append(badge, heading, caption, input, cards, help);
+      root.append(badge, heading, caption,
+        fieldHeading(input, "Test title", "Enter up to 38 characters for the title printed on the local test image."), input,
+        fieldHeading(cards, "Test look", "Choose the color palette for the local test image."), cards, help);
       function state() { try { return JSON.parse(stateWidget.value); } catch { return {}; } }
       function update(patch) {
         stateWidget.value = JSON.stringify({...state(), ...patch});

@@ -55,3 +55,10 @@
 .studio-launcher .studio-back-results { margin-bottom:20px; }
 #linearCenterPanel > .studio-over-results { position:absolute; inset:0; z-index:22; background:var(--comfy-menu-bg,#202224); padding-top:24px; }
 #linearCenterPanel:has(> .studio-over-results) > :not(.studio-over-results) { visibility:hidden; }
+
+.studio-field-heading { display:flex; align-items:center; gap:5px; margin:13px 0 4px; font-size:12px; color:#dae2d8; }
+.intuitive-studio .studio-field-heading label { margin:0; }
+.studio-field-info { display:inline-flex; align-items:center; vertical-align:middle; }
+.studio-field-info .studio-info-trigger { display:inline-grid; place-items:center; width:24px; height:24px; padding:0; border:0; border-radius:50%; background:transparent; color:#b6cbbd; font:16px/1 sans-serif; cursor:help; }
+.studio-field-info .studio-info-trigger:is(:hover,:focus-visible) { background:#35453b; color:white; }
+.studio-tooltip { position:fixed; inset:auto; margin:0; width:max-content; max-width:min(30ch,calc(100vw - 12px)); padding:8px 11px; border:1px solid #64746c; border-radius:7px; background:#19201d; color:#f0f4ee; font:13px/1.45 system-ui,sans-serif; text-align:left; box-shadow:0 3px 12px #0005; }

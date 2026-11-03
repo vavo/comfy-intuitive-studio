@@ -1,10 +1,23 @@
-import { element } from "./studio.js";
+import { app } from "../../scripts/app.js";
+import { element, fieldInfo } from "./studio.js";
 
 const sources = new WeakMap();
 let mounted;
 let owner;
 let selection;
-let observer;
+app.registerExtension({
+  name:"IntuitiveStudio.Launcher",
+  setup() {
+    let scheduled = false;
+    const observer = new MutationObserver(() => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {scheduled = false;sync();});
+    });
+    observer.observe(document.body,{childList:true,subtree:true});
+    sync();
+  }
+});
 let browsingRoot;
 let chooseButton;
 const descriptions = {
@@ -36,7 +49,34 @@ function clear() {
   mounted?.remove();mounted = null;owner = null;selection = null;
   document.querySelectorAll(".studio-welcome-replaced").forEach(el=>el.classList.remove("studio-welcome-replaced"));
 }
+// ComfyUI owns this one field outside the Studio widget (in a popover on mobile).
+let runHelp;
+let runInput;
+function syncRunHelp() {
+  const runSection = document.querySelector('[data-testid="linear-run-button"]');
+  const studio = runSection?.parentElement.querySelector(".intuitive-studio");
+  const header = studio && document.querySelector('[data-testid="linear-run-button"] .text-node-component-slot-text:has(+ [aria-label] input), [data-reka-popper-content-wrapper] .text-node-component-slot-text:has(+ [aria-label] input)');
+  const input = header?.nextElementSibling?.querySelector("input");
+  if (input === runInput && (!input || runHelp?.isConnected)) return;
+  if (runHelp) {
+    const id = runHelp.querySelector('[role="tooltip"]').id;
+    const others = (runInput.getAttribute("aria-describedby") || "").split(" ").filter(item => item && item !== id);
+    if (others.length) runInput.setAttribute("aria-describedby", others.join(" "));
+    else runInput.removeAttribute("aria-describedby");
+    runHelp.remove();
+  }
+  runInput = input;
+  runHelp = null;
+  if (input) {
+    const description = studio.getAttribute("aria-label") === "Intuitive Studio"
+      ? "How many times ComfyUI queues this take. For a fresh generation, choose New take in Studio."
+      : "How many times ComfyUI queues the local test.";
+    runHelp = fieldInfo(input, header.textContent.trim(), description);
+    header.append(runHelp);
+  }
+}
 function sync() {
+  syncRunHelp();
   const center = document.querySelector("#linearCenterPanel");
   const welcome = center?.querySelector('[data-testid="linear-welcome"]');
   const root = document.querySelector('#linear-right-panel .intuitive-studio[aria-label="Intuitive Studio"]');
@@ -107,15 +147,6 @@ function sync() {
 }
 export function registerLauncher(root, source) {
   sources.set(root,source);
-  if (!observer) {
-    let scheduled = false;
-    observer = new MutationObserver(() => {
-      if (scheduled) return;
-      scheduled = true;
-      requestAnimationFrame(() => {scheduled = false;sync();});
-    });
-    observer.observe(document.body,{childList:true,subtree:true});
-  }
   sync();
   return () => {sources.delete(root);if (owner === root) clear();};
 }

@@ -1,4 +1,4 @@
-import { element } from "./studio.js";
+import { element, fieldHeading } from "./studio.js";
 
 export function sizeControls(choices, value, onChange) {
   const groups = new Map();
@@ -11,7 +11,6 @@ export function sizeControls(choices, value, onChange) {
   }
   for (const group of groups.values()) group.sizes.sort((a,b)=>a.area-b.area);
   const root = element("div",null,{class:"studio-size-controls"});
-  const aspectLabel = element("label","Aspect ratio"), resolutionLabel = element("label","Resolution");
   const aspect = element("select",null,{"aria-label":"Aspect ratio"});
   const resolution = element("select",null,{"aria-label":"Resolution"});
   const hint = element("p",null,{class:"studio-hint"});
@@ -36,7 +35,7 @@ export function sizeControls(choices, value, onChange) {
     onChange(resolution.value);
   };
   resolution.onchange = () => onChange(resolution.value);
-  aspectLabel.append(aspect);resolutionLabel.append(resolution);
-  root.append(aspectLabel,resolutionLabel,hint);
+  root.append(fieldHeading(aspect, "Aspect ratio", "Choose the shape of the frame. Square has equal sides, portrait is taller, and wide is wider."), aspect,
+    fieldHeading(resolution, "Resolution", "Choose the pixel dimensions for this shape. The available sizes depend on the model and aspect ratio."), resolution, hint);
   return root;
 }

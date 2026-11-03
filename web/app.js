@@ -1,6 +1,6 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
-import { element } from "./studio.js";
+import { element, fieldHeading } from "./studio.js";
 import { sizeControls } from "./size-controls.js";
 import { connectionPanel } from "./connection.js";
 import { registerLauncher } from "./launcher.js";
@@ -153,7 +153,7 @@ app.registerExtension({
           parent.append(sizeControls(field.choices, String(value), size => setField(field.name,size)));
           return;
         }
-        const label = element("label", field.label + (field.required ? " *" : ""));
+        const fieldBody = element("div");
         let input;
         let durationValue;
         if (field.name === "duration") {
@@ -164,10 +164,10 @@ app.registerExtension({
           durationValue = () => options[Number(input.value)];
           input.setAttribute("aria-valuetext", output.textContent);
           input.addEventListener("input", () => {output.textContent=`${durationValue()} seconds`;input.setAttribute("aria-valuetext",output.textContent);});
-          label.append(output);
+          fieldBody.append(output);
           const ticks = element("div", null, {class:"studio-duration-ticks", "aria-hidden":"true"});
           for (const seconds of options) ticks.append(element("span", `${seconds}s`));
-          label.append(ticks);
+          fieldBody.append(ticks);
         } else if (field.choices) {
           input = element("select", null, {"aria-label":field.label});
           for (const option of field.choices) input.append(element("option", field.name === "size" ? sizeLabel(option) : String(option), {value:String(option)}));
@@ -185,15 +185,19 @@ app.registerExtension({
           input.step = String(field.step ?? (field.type === "integer" ? 1 : "any"));
           input.value = String(value);
         }
-        input.title = field.description || "";
+        let description = field.description;
+        if (field.media) description += field.type === "array"
+          ? " Paste one HTTPS URL or Forma asset reference per line." : " Paste an HTTPS URL or a Forma asset reference.";
+        if (field.name === "duration" && field.choices) description = `Choose the clip length in seconds: ${field.choices.join(", ")}.`;
         input.oninput = () => {
           let value = durationValue ? durationValue() : input.value;
           if (field.type === "boolean") value = value === "true";
           else if (["integer","number","float"].includes(field.type) && value !== "") value = Number(value);
           setField(field.name, value);
         };
-        label.append(input);
-        parent.append(label);
+        fieldBody.prepend(fieldHeading(input, field.label + (field.required ? " *" : ""), description));
+        fieldBody.append(input);
+        parent.append(fieldBody);
         if (field.media) {
           const previews = element("div", null, {class:"studio-references"});
           const showPreviews = () => {
@@ -223,7 +227,7 @@ app.registerExtension({
             } catch(error) { status.textContent=error.message; }
             finally { file.disabled=false; }
           };
-          parent.append(file);
+          parent.append(fieldHeading(file, `Upload ${field.label}`, `Choose a local ${field.media} file up to 32 MB. Studio uploads it to your Forma library and fills in the reference above.`), file);
         }
       }
       function render() {
@@ -241,7 +245,7 @@ app.registerExtension({
         }
         modes.value=state().workflow;
         modes.onchange=()=>switchWorkflow(modes.value);
-        const modeLabel=element("label","What would you like to do?"); modeLabel.append(modes); root.append(modeLabel);
+        root.append(fieldHeading(modes, "What would you like to do?", "Choose a workflow for this tab. Return to a previous workflow to resume its settings and results."), modes);
         const compatible=catalog.models.filter(m=>m.workflows.includes(state().workflow));
         if (!compatible.length) {
           root.append(element("p","This workflow is preserved. No verified open-weight Runpod endpoint is currently configured through Forma. Running is blocked on the server.",{class:"studio-status"}));
@@ -251,7 +255,7 @@ app.registerExtension({
         for (const m of compatible) select.append(element("option",m.name,{value:m.id}));
         select.value=state().model;
         select.onchange=()=>{update({model:select.value,values:{prompt:state().values?.prompt || ""}});render();};
-        const modelLabel=element("label","Model"); modelLabel.append(select); root.append(modelLabel);
+        root.append(fieldHeading(select, "Model", "Choose the model that will run this workflow. Changing models keeps the prompt and resets model-specific settings."), select);
         const m=model();
         if (!m) { root.append(element("p","Select a model to configure this workflow.")); return; }
         const cards=element("div",null,{class:"studio-cards"});
@@ -270,7 +274,7 @@ app.registerExtension({
           button.onclick=()=>{update({look,values:{...state().values,prompt:((state().values?.prompt||"").replace(/\n\[Studio recipe\][\s\S]*$/,"")+"\n[Studio recipe] "+suffix).trim()}});render();};
           cards.append(button);
         }
-        root.append(cards);
+        root.append(fieldHeading(cards, m.kind === "image" ? "Lighting" : "Camera movement", "Choose a preset to add its instructions to your prompt. Choosing another replaces the previous preset."), cards);
         if (m.kind === "video") {
           const playback = element("button", previewMotion ? "Pause previews" : "Play previews", {type:"button",class:"studio-preview-toggle"});
           playback.onclick = () => {
@@ -300,9 +304,8 @@ app.registerExtension({
           makeField(field,primary ? root : advanced);
         }
         root.append(advanced);
-        const capLabel=element("label","Maximum spend for this run (USD cents)");
         const cap=element("input",null,{type:"number",min:"0",max:"300",step:"1","aria-label":"Maximum spend in cents"});
-        cap.value=state().cap ?? 0; cap.oninput=()=>update({cap:Number(cap.value)}); capLabel.append(cap); root.append(capLabel);
+        cap.value=state().cap ?? 0; cap.oninput=()=>update({cap:Number(cap.value)}); root.append(fieldHeading(cap, "Maximum spend for this run (USD cents)", "The run is blocked if its quote exceeds this amount. For example, 50 allows up to $0.50."), cap);
         root.append(element("p",`Take ${state().run || 1}. Unchanged requests recover the same generation.`,{class:"studio-hint"}));
         const actions=element("div",null,{class:"studio-actions"});
         const price=element("button","Check price",{type:"button"});

@@ -1,5 +1,5 @@
 import { api } from "../../scripts/api.js";
-import { element } from "./studio.js";
+import { element, fieldHeading } from "./studio.js";
 
 let current;
 let pending;
@@ -30,7 +30,6 @@ export function connectionPanel(onChange) {
   const panel = element("details", null, {class:"studio-connection"});
   const summary = element("summary", "Connect Forma · Checking…");
   const status = element("p", "Checking connection…", {class:"studio-hint", role:"status", "aria-live":"polite"});
-  const label = element("label", "Forma API key");
   const input = element("input", null, {type:"password", "aria-label":"Forma API key", autocomplete:"off", placeholder:"forma_…", spellcheck:"false"});
   input.maxLength = 70;
   const save = element("button", "Save and connect", {type:"button"});
@@ -38,7 +37,7 @@ export function connectionPanel(onChange) {
   const retry = element("button", "Check connection", {type:"button"});
   const actions = element("div", null, {class:"studio-actions"});
   const hint = element("p", "Saved on this ComfyUI server, shared by its workflows. Never included in workflow exports.", {class:"studio-hint"});
-  label.append(input);actions.append(save,retry);panel.append(summary,status,label,actions,hint);
+  actions.append(save,retry);panel.append(summary,status,fieldHeading(input, "Forma API key", "Paste a key from Forma Account settings to use that account’s balance. Save and connect verifies it before replacing the current key."),input,actions,hint);
   let busy = false;
   function update(value, changed) {
     summary.textContent = `Connect Forma · ${value.checking ? "Checking…" : value.connected ? "Connected" : value.error ? "Connection failed" : "Not connected"}`;
